@@ -19,6 +19,6 @@
   },
   "dependencies": {
     "cors": "^2.8.5",
-    "generate-gitignore": "^0.2.6"
+    "generate-gitignore": "^0.1.2"
   }
 }
