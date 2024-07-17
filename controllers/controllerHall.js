@@ -31,7 +31,7 @@ const getHalls = async (req, res) => {
   try {
     const result = await pool.query(queriesHall.getHalls);
     if (!result.rows) {
-      return res.status(400).json({message: 'Mistacke'});
+      return res.status(401).json([]);
     }
     return res.status(200).json(result.rows);
   } catch (err) {

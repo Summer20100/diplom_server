@@ -1,10 +1,10 @@
 const { Router } = require("express");
 
-const queriesChairs = require("../controllers/controllerChair");
+const controllerChair = require("../controllers/controllerChair");
 
 const router = Router();
 
-router.get("/", queriesChairs.getChairsTypes);
-router.get("/:id", queriesChairs.getChairsTypesById);
+router.get("/", controllerChair.getChairsTypes);
+router.get("/:id", controllerChair.getChairsTypesById);
 
 module.exports = router;

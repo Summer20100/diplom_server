@@ -1,12 +1,12 @@
 const { Router } = require("express");
 
-const queriesHalls = require("../controllers/controllerHall");
+const controllerHall = require("../controllers/controllerHall");
 
 const router = Router();
 
-router.get("/", queriesHalls.getHalls);
-router.post("/", queriesHalls.addHall);
-router.get("/:id", queriesHalls.getHallById);
-router.delete("/:id", queriesHalls.removeHall);
+router.get("/", controllerHall.getHalls);
+router.post("/", controllerHall.addHall);
+router.get("/:id", controllerHall.getHallById);
+router.delete("/:id", controllerHall.removeHall);
 
 module.exports = router;
