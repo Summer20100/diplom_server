@@ -10,6 +10,10 @@ const queriesHallChairs = {
       price DECIMAL(10, 2) NOT NULL,
   );`,
 
+  getHallChairs: "SELECT * FROM hall_chairs",
+
+  getHallChairsById: "SELECT * FROM hall_chairs WHERE hall_id = $1",
+
   addHallChairs: `
     INSERT INTO hall_chairs (
       id_seat,
