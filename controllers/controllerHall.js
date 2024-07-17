@@ -30,8 +30,8 @@ const addHall = async (req, res) => {
 const getHalls = async (req, res) => {
   try {
     const result = await pool.query(queriesHall.getHalls);
-    if (result.rows.length === 0) {
-      return res.status(400).json({ message: "Halls not created" });
+    if (!result.rows) {
+      return res.status(400).json({message: 'Mistacke'});
     }
     return res.status(200).json(result.rows);
   } catch (err) {
@@ -64,11 +64,12 @@ const removeHall = async (req, res) => {
       })
     }
     await pool.query(queriesHall.removeHall, [id]);
-    return res.status(200).json({ message: `Hall deleted successfully` });
+    return res.status(200).json({ hall: result.rows, message: `Hall deleted successfully` });
   } catch (err) {
     console.error("Error executing query", err);
     return res.status(500).json({ message: "Internal Server Error" });
   }
+
 }
 
 module.exports = {
