@@ -71,10 +71,26 @@ const deleteHallChairs = async (req, res) => {
   }
 }
 
+const updatePriceHallCairs = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const { type } = req.query;
+    const { price } = req.body;
+    await pool.query(queriesHallChairs.updatePriceHallCairs, [price, type, id,]);
+    console.log({ message: 'Price updated successfully'});
+    return res.status(200).json({ message: `Price updated successfully`});
+  } catch(err) {
+    console.error(err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+  
+}
+
 module.exports = {
     getHallChairs,
     getHallChairsById,
     createTableHallChairs,
     addHallChairs,
-    deleteHallChairs
+    deleteHallChairs,
+    updatePriceHallCairs
 };

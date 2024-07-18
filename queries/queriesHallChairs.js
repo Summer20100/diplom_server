@@ -10,9 +10,9 @@ const queriesHallChairs = {
       price DECIMAL(10, 2) NOT NULL,
   );`,
 
-  getHallChairs: "SELECT * FROM hall_chairs",
+  getHallChairs: "SELECT * FROM hall_chairs;",
 
-  getHallChairsById: "SELECT * FROM hall_chairs WHERE hall_id = $1",
+  getHallChairsById: "SELECT * FROM hall_chairs WHERE hall_id = $1;",
 
   addHallChairs: `
     INSERT INTO hall_chairs (
@@ -26,7 +26,14 @@ const queriesHallChairs = {
     ) VALUES ($1, $2, $3, $4, $5, $6, $7);
     `,
 
-    deleteHallChairs: "DELETE FROM hall_chairs WHERE hall_id = $1 ",
+  deleteHallChairs: "DELETE FROM hall_chairs WHERE hall_id = $1;",
+
+  updatePriceHallCairs: `
+    UPDATE hall_chairs 
+      SET price = $1
+        WHERE chair_type = $2
+        AND hall_id = $3;
+    `,
 };
 
 module.exports = {
