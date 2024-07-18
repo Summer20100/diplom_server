@@ -7,7 +7,8 @@ const router = Router();
 router.get("/", controllerHallChairs.getHallChairs);
 router.get("/:id", controllerHallChairs.getHallChairsById);
 router.get("/create", controllerHallChairs.createTableHallChairs);
-router.post("/", controllerHallChairs.addHallChairs)
+router.post("/", controllerHallChairs.addHallChairs);
+router.delete("/:id", controllerHallChairs.deleteHallChairs)
 
 // router.post("/", queriesHalls.addHall);
 // router.get("/:id", queriesHalls.getHallById);

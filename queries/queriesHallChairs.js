@@ -24,8 +24,12 @@ const queriesHallChairs = {
       chair_type,
       price
     ) VALUES ($1, $2, $3, $4, $5, $6, $7);
-    `
-  };
+    `,
+
+    deleteHallChairs: "DELETE FROM hall_chairs WHERE hall_id = $1 ",
+};
+
+  
 
 module.exports = {
   queriesHallChairs,

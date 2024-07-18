@@ -6,8 +6,6 @@ const getHallChairs = async (req, res) => {
   try {
     const result = await pool.query(queriesHallChairs.getHallChairs)
     return res.status(200).json(result.rows)
-    // return res.status(200).json({ message: "GOOODDD"})
-    
   } catch (err) {
     console.error("Error executing query", err);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -30,7 +28,7 @@ const getHallChairsById = async (req, res) => {
 
 const createTableHallChairs = async (req, res) => {
   try {
-    pool.query(queriesHallChairs.createTableHallChairs)
+    await pool.query(queriesHallChairs.createTableHallChairs)
     return res.status(200).json({ message: "GOOODDD"})
   } catch(err) {
     console.error("Error executing query", err);
@@ -40,11 +38,9 @@ const createTableHallChairs = async (req, res) => {
 
 const addHallChairs = async (req, res) => {
   const hallSeats = req.body;
-  
   try {
     for (const seat of hallSeats) {
       const { id_seat, hall_id, hall_title, row_number, seat_number, chair_type, price } = seat;
-      
       await pool.query(queriesHallChairs.addHallChairs, [
         id_seat,
         hall_id,
@@ -55,17 +51,30 @@ const addHallChairs = async (req, res) => {
         price
       ]);
     }
-    
-    return res.status(200).json({ message: 'Seats added successfully'})
-  } catch (error) {
-    console.error(error);
+    console.log({ message: 'Hall seats added successfully'})
+    return res.status(200).json({ message: 'Hall seats added successfully'})
+  } catch (err) {
+    console.error(err);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+const deleteHallChairs = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query(queriesHallChairs.deleteHallChairs, [id,]);
+    console.log({ message: 'Hall seats deleted successfully'})
+    return res.status(200).json({ message: `Hall seats deleted successfully`})
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+}
 
 module.exports = {
     getHallChairs,
     getHallChairsById,
     createTableHallChairs,
-    addHallChairs
+    addHallChairs,
+    deleteHallChairs
 };
