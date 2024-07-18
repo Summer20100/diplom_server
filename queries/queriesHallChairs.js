@@ -29,8 +29,6 @@ const queriesHallChairs = {
     deleteHallChairs: "DELETE FROM hall_chairs WHERE hall_id = $1 ",
 };
 
-  
-
 module.exports = {
   queriesHallChairs,
 };
