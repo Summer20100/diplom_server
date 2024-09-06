@@ -25,6 +25,15 @@ const queriesHallChairs = {
       price
     ) VALUES ($1, $2, $3, $4, $5, $6, $7);
     `,
+  
+  updateHallChairByIdSeat: `
+    UPDATE hall_chairs 
+      SET chair_type = $3 
+        WHERE hall_id = $1 
+        AND id_seat = $2;
+    `,
+  
+  // updateHallChairByIdSeat: "SELECT * FROM hall_chairs WHERE hall_id = $1 AND id_seat = $2;",
 
   deleteHallChairs: "DELETE FROM hall_chairs WHERE hall_id = $1;",
 
