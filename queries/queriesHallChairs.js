@@ -12,7 +12,7 @@ const queriesHallChairs = {
 
   getHallChairs: "SELECT * FROM hall_chairs;",
 
-  getHallChairsById: "SELECT * FROM hall_chairs WHERE hall_id = $1;",
+  getHallChairsById: "SELECT * FROM hall_chairs WHERE hall_id = $1 ORDER BY id_seat;",
 
   addHallChairs: `
     INSERT INTO hall_chairs (
