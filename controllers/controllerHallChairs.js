@@ -59,21 +59,6 @@ const addHallChairs = async (req, res) => {
   }
 };
 
-// const updateHallChairByIdSeat = async (req, res) => {
-//   const hall_id = req.params.id;
-//   const id_seat = req.query.seat;
-//   const chair_type = req.body.type_seat;
-
-//   try {
-//     await pool.query(queriesHallChairs.updateHallChairByIdSeat, [hall_id, id_seat, chair_type,]);
-//     console.log({ message: 'Type of chair updated successfully'});
-//     return res.status(200).json({ message: `Type of chair updated successfully`});
-//   } catch (err) {
-//     console.error(err);
-//     return res.status(500).json({ error: "Internal Server Error" });
-//   }
-// };
-
 const updatePriceHallCairs = async (req, res) => {
   const id  = req.params.id;
 

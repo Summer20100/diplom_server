@@ -3,6 +3,7 @@ const userRoutes = require("./src/user/routes");
 const routeHall = require("./routes/routeHall");
 const routeChair = require("./routes/routeChair");
 const routeHallChairs = require("./routes/routeHallChairs");
+const routeSessions = require('./routes/routeSessions');
 
 const app = express();
 const PORT = process.env.SERVER_PORT || 3001;
@@ -41,6 +42,7 @@ app.use(`/${process.env.DB_SECRET}/api/v1/users`, userRoutes);
 app.use("/api/chair", routeChair);
 app.use("/api/hallchairs", routeHallChairs);
 app.use("/api/hall", routeHall);
+app.use("/api/sessions", routeSessions);
 
 app.listen(PORT, () => {
   console.log(`Server running on port http://localhost:${PORT}`);
