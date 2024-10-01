@@ -51,7 +51,6 @@ const createSession = async (req, res) => {
 
     const sessionsByHall = (await pool.query(queriesSessions.getSessionByHallId, [hall_id, ])).rows;
 
-    // Set min and max session times from existing sessions
     let minSessionStart = null;
     let maxSessionFinish = null;
 
@@ -65,19 +64,18 @@ const createSession = async (req, res) => {
       }, sessionsByHall[0].session_finish);
     }
 
-    // Check for overlap with existing sessions
-    if (minSessionStart !== null && maxSessionFinish !== null) {
-      if (
-        (session_start >= minSessionStart && session_start < maxSessionFinish) ||
-        (session_finish > minSessionStart && session_finish <= maxSessionFinish) ||
-        (session_start <= minSessionStart && session_finish >= maxSessionFinish)
-      ) {
-        console.log(`New session times overlap with existing sessions: minSessionStart ${minSessionStart}, maxSessionFinish ${maxSessionFinish}`);
-        return res.status(400).json({ 
-          error: `New session time overlaps with existing sessions: minSessionStart ${minSessionStart}, maxSessionFinish ${maxSessionFinish}` 
-        });
-      }
-    };
+    // if (minSessionStart !== null && maxSessionFinish !== null) {
+    //   if (
+    //     (session_start >= minSessionStart && session_start < maxSessionFinish) ||
+    //     (session_finish > minSessionStart && session_finish <= maxSessionFinish) ||
+    //     (session_start <= minSessionStart && session_finish >= maxSessionFinish)
+    //   ) {
+    //     console.log(`New session times overlap with existing sessions: minSessionStart ${minSessionStart}, maxSessionFinish ${maxSessionFinish}`);
+    //     return res.status(400).json({ 
+    //       error: `New session time overlaps with existing sessions: minSessionStart ${minSessionStart}, maxSessionFinish ${maxSessionFinish}` 
+    //     });
+    //   }
+    // };
     
     await pool.query(queriesSessions.createSession, [
       hall_id,

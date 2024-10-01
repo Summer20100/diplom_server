@@ -21,8 +21,7 @@ const queriesSessions = {
   `,
 
   getSessions: `
-    SELECT * FROM sessions
-    ORDER BY session_date, hall_id, session_start;
+    SELECT * FROM sessions ORDER BY session_date, hall_id, session_start;
   `,
 
   getSessionById: `
@@ -30,7 +29,7 @@ const queriesSessions = {
   `,
 
   getSessionByHallId: `
-  SELECT * FROM sessions WHERE hall_id = $1
+  SELECT * FROM sessions WHERE hall_id = $1 ORDER BY session_date, session_start;
   `,
 
   updateSession: `

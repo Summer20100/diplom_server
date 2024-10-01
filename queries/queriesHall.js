@@ -1,6 +1,6 @@
 const queriesHall = {
   createTableHall: 'CREATE TABLE IF NOT EXISTS "halls" (id SERIAL PRIMARY KEY, hall_title VARCHAR(255) UNIQUE NOT NULL)',
-  getHalls: "SELECT * FROM halls",
+  getHalls: "SELECT * FROM halls ORDER BY id",
   getHallById: "SELECT * FROM halls WHERE id = $1",
   addHall: "INSERT INTO halls (hall_title) VALUES ($1)",
   checkIsHallExist: "SELECT * FROM halls WHERE hall_title = $1",
