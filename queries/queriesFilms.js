@@ -27,7 +27,7 @@ const queriesFilms = {
     `,
   
     getFilmById: `
-      SELECT * FROM films WHERE id = $1;
+      SELECT * FROM films WHERE id = $1 ORDER BY title;
     `,
   
     updateFilm: `
