@@ -76,12 +76,12 @@ const getSessionByHallId = async (req, res) => {
       return acc;
     }, {});
 
-    console.log(JSON.stringify(groupedByDate, null, 2));
-
     if (result.length === 0) {
       return res.status(401).json({ message: "Session does not exist" });
     }
-    return res.status(200).json(result.rows);
+    
+    return res.status(200).json(groupedByDate);
+    // return res.status(200).json(result.rows);
   } catch (err) {
     console.error("Error retrieving session", err);
     return res.status(500).json({ error: "Internal Server Error" });
