@@ -1,3 +1,5 @@
+const { getFilms } = require("../controllers/controllerFilms");
+
 const queriesFilms = {
     createTableFilms: `
       CREATE TABLE IF NOT EXISTS films (
@@ -12,6 +14,8 @@ const queriesFilms = {
         session_id INT NULL
       );
     `,
+
+    checkIsFilmExist: "SELECT * FROM films WHERE title = $1",
   
     createFilm: `
       INSERT INTO films (
@@ -23,11 +27,15 @@ const queriesFilms = {
         image_url,
         duration,
         session_id
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, NULL);
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+    `,
+
+    getFilms: `
+      SELECT * FROM films ORDER BY title;
     `,
   
     getFilmById: `
-      SELECT * FROM films WHERE id = $1 ORDER BY title;
+      SELECT * FROM films WHERE id = $1;
     `,
   
     updateFilm: `

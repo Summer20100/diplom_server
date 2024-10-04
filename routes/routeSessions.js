@@ -5,6 +5,7 @@ const controllerSessions = require("../controllers/controllerSessions");
 const router = Router();
 
 router.get("/", controllerSessions.getSessions);
+router.get("/halls", controllerSessions.getSessionsHalls);
 router.post("/", controllerSessions.createSession);
 router.get("/:id", controllerSessions.getSessionById);
 router.get("/hall/:id", controllerSessions.getSessionByHallId);

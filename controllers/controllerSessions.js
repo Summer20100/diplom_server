@@ -1,7 +1,19 @@
 const pool = require("../db");
+const moment = require('moment');
 const { queriesSessions } = require("../queries/queriesSessions");
 
 const getSessions = async (req, res) => {
+  try {
+    const result = await pool.query(queriesSessions.getSessions);
+    const { rows: sessions } = result;
+    return res.status(200).json(sessions);
+  } catch (err) {
+    console.error("Error executing query", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+const getSessionsHalls = async (req, res) => {
   try {
     const result = await pool.query(queriesSessions.getSessions);
 
@@ -37,8 +49,7 @@ const getSessions = async (req, res) => {
       return acc;
     }, {});
 
-    return res.status(200).json(sessions);
-    // return res.status(200).json(groupedByHallAndDate);
+    return res.status(200).json(groupedByHallAndDate);
   } catch (err) {
     console.error("Error executing query", err);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -203,6 +214,7 @@ const deleteSession = async (req, res) => {
 
 module.exports = {
   getSessions,
+  getSessionsHalls,
   getSessionByHallId,
   getSessionById,
   createSession,
