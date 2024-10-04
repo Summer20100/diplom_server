@@ -45,7 +45,7 @@ const queriesSessions = {
   deleteSession: `
     DELETE FROM sessions
     WHERE id = $1;
-  `
+  `,
 };
 
 module.exports = {
