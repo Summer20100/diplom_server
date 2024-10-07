@@ -19,39 +19,47 @@ const getSessionsHalls = async (req, res) => {
 
     const { rows: sessions } = result;
 
-    const groupedByHallAndDate = sessions.reduce((acc, session) => {
-      const {
-        hall_id,
-        hall_title,
-        session_date,
-        id,
-        session_start,
-        session_finish,
-        film_id
-      } = session;
-
+    const modifiedData = sessions.reduce((acc, session) => {
+      const { hall_id, hall_title, session_date, id, session_start, session_finish, film_id } = session;
+    
+      // Initialize hall if it doesn't exist
       if (!acc[hall_id]) {
         acc[hall_id] = {
-          hall_title: hall_title,
-          sessions: {},
+          hall_id: Number(hall_id),
+          hall_title,
+          sessions: {}
         };
       }
-
+    
+      // Initialize session date if it doesn't exist
       if (!acc[hall_id].sessions[session_date]) {
         acc[hall_id].sessions[session_date] = [];
       }
-
+    
+      // Push session details
       acc[hall_id].sessions[session_date].push({
         id,
         session_start,
         session_finish,
         film_id
       });
-
+    
       return acc;
     }, {});
+    
+    // Convert to array format
+    const finalData = Object.values(modifiedData).map(hallData => ({
+      hall_id: hallData.hall_id,
+      hall_title: hallData.hall_title,
+      sessions: Object.entries(hallData.sessions).map(([session_date, session]) => ({
+        session_date,
+        session
+      }))
+    }));
+    
+    console.log(finalData);
 
-    return res.status(200).json(groupedByHallAndDate);
+    return res.status(200).json(finalData);
   } catch (err) {
     console.error("Error executing query", err);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -92,9 +100,49 @@ const getSessionByHallId = async (req, res) => {
     if (result.length === 0) {
       return res.status(401).json({ message: "Session does not exist" });
     }
+
+    const modifiedData = sessions.reduce((acc, session) => {
+      const { hall_id, hall_title, session_date, id, session_start, session_finish, film_id } = session;
     
-    return res.status(200).json(groupedByDate);
+      // Initialize hall if it doesn't exist
+      if (!acc[hall_id]) {
+        acc[hall_id] = {
+          hall_id: Number(hall_id),
+          hall_title,
+          sessions: {}
+        };
+      }
+    
+      // Initialize session date if it doesn't exist
+      if (!acc[hall_id].sessions[session_date]) {
+        acc[hall_id].sessions[session_date] = [];
+      }
+    
+      // Push session details
+      acc[hall_id].sessions[session_date].push({
+        id,
+        session_start,
+        session_finish,
+        film_id
+      });
+    
+      return acc;
+    }, {});
+    
+    // Convert to a single object format
+    const hallData = Object.values(modifiedData)[0]; 
+    const finalData = {
+      hall_id: hallData.hall_id,
+      hall_title: hallData.hall_title,
+      sessions: Object.entries(hallData.sessions).map(([session_date, session]) => ({
+        session_date,
+        session
+      }))
+    };
+      
+    // return res.status(200).json(groupedByDate);
     // return res.status(200).json(result.rows);
+    return res.status(200).json(finalData);
   } catch (err) {
     console.error("Error retrieving session", err);
     return res.status(500).json({ error: "Internal Server Error" });
