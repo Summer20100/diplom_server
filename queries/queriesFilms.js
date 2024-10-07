@@ -1,5 +1,3 @@
-const { getFilms } = require("../controllers/controllerFilms");
-
 const queriesFilms = {
     createTableFilms: `
       CREATE TABLE IF NOT EXISTS films (
