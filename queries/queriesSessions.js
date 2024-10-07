@@ -6,7 +6,8 @@ const queriesSessions = {
       hall_title VARCHAR(20) NOT NULL,
       session_date DATE NOT NULL,
       session_start TIME NOT NULL,
-      session_finish TIME NOT NULL
+      session_finish TIME NOT NULL,
+      film_id INT NULL
     );
   `,
 
@@ -16,8 +17,9 @@ const queriesSessions = {
       hall_title,
       session_date,
       session_start,
-      session_finish
-    ) VALUES ($1, $2, $3, $4, $5);
+      session_finish,
+      film_id
+    ) VALUES ($1, $2, $3, $4, $5, $6);
   `,
 
   getSessions: `
@@ -38,14 +40,16 @@ const queriesSessions = {
         hall_title = $2,
         session_date = $3,
         session_start = $4,
-        session_finish = $5
-    WHERE id = $6;
+        session_finish = $5,
+        film_id = $6
+    WHERE id = $7;
   `,
 
   deleteSession: `
     DELETE FROM sessions
     WHERE id = $1;
   `,
+  
 };
 
 module.exports = {

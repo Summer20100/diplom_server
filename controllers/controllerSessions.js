@@ -27,6 +27,7 @@ const getSessionsHalls = async (req, res) => {
         id,
         session_start,
         session_finish,
+        film_id
       } = session;
 
       if (!acc[hall_id]) {
@@ -44,6 +45,7 @@ const getSessionsHalls = async (req, res) => {
         id,
         session_start,
         session_finish,
+        film_id
       });
 
       return acc;
@@ -100,7 +102,7 @@ const getSessionByHallId = async (req, res) => {
 };
 
 const createSession = async (req, res) => {
-  const { hall_id, hall_title, session_date, session_start, session_finish } =
+  const { hall_id, hall_title, session_date, session_start, session_finish, film_id } =
     req.body;
   try {
     if (session_start >= session_finish) {
@@ -150,7 +152,14 @@ const createSession = async (req, res) => {
       session_date,
       session_start,
       session_finish,
-    ]);
+      film_id
+    ], (err, result) => {
+      if (err) {
+        return res.status(400).json({
+          message: "Film not created",
+        });
+      }
+    });
 
     console.log(`Session was created`);
     return res.status(200).json({ message: `Session was created` });
@@ -161,7 +170,7 @@ const createSession = async (req, res) => {
 };
 
 const updateSession = async (req, res) => {
-  const { hall_id, hall_title, session_date, session_start, session_finish } =
+  const { hall_id, hall_title, session_date, session_start, session_finish, film_id } =
     req.body;
   const { id } = parseInt(req.params);
   try {
@@ -171,6 +180,7 @@ const updateSession = async (req, res) => {
       session_date,
       session_start,
       session_finish,
+      film_id,
       id,
     ]);
 
