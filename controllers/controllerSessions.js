@@ -1,5 +1,4 @@
 const pool = require("../db");
-const moment = require('moment');
 const { queriesSessions } = require("../queries/queriesSessions");
 
 const getSessions = async (req, res) => {
@@ -22,7 +21,6 @@ const getSessionsHalls = async (req, res) => {
     const modifiedData = sessions.reduce((acc, session) => {
       const { hall_id, hall_title, session_date, id, session_start, session_finish, film_id } = session;
     
-      // Initialize hall if it doesn't exist
       if (!acc[hall_id]) {
         acc[hall_id] = {
           hall_id: Number(hall_id),
@@ -30,13 +28,11 @@ const getSessionsHalls = async (req, res) => {
           sessions: {}
         };
       }
-    
-      // Initialize session date if it doesn't exist
+
       if (!acc[hall_id].sessions[session_date]) {
         acc[hall_id].sessions[session_date] = [];
       }
-    
-      // Push session details
+
       acc[hall_id].sessions[session_date].push({
         id,
         session_start,
@@ -69,7 +65,7 @@ const getSessionsHalls = async (req, res) => {
 const getSessionById = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await pool.query(queriesSessions.getSessionById, [id]);
+    const result = await pool.query(queriesSessions.getSessionById, [id, ]);
     if (result.length === 0) {
       return res.status(401).json({ message: "Session does not exist" });
     }
@@ -104,7 +100,6 @@ const getSessionByHallId = async (req, res) => {
     const modifiedData = sessions.reduce((acc, session) => {
       const { hall_id, hall_title, session_date, id, session_start, session_finish, film_id } = session;
     
-      // Initialize hall if it doesn't exist
       if (!acc[hall_id]) {
         acc[hall_id] = {
           hall_id: Number(hall_id),
@@ -112,13 +107,11 @@ const getSessionByHallId = async (req, res) => {
           sessions: {}
         };
       }
-    
-      // Initialize session date if it doesn't exist
+
       if (!acc[hall_id].sessions[session_date]) {
         acc[hall_id].sessions[session_date] = [];
       }
     
-      // Push session details
       acc[hall_id].sessions[session_date].push({
         id,
         session_start,
@@ -129,7 +122,6 @@ const getSessionByHallId = async (req, res) => {
       return acc;
     }, {});
     
-    // Convert to a single object format
     const hallData = Object.values(modifiedData)[0]; 
     const finalData = {
       hall_id: hallData.hall_id,

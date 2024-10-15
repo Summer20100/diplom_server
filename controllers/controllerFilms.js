@@ -57,7 +57,7 @@ const getFilmsById = async (req, res) => {
   const { id } = req.params;
   try {
     const result = await pool.query(queriesFilms.getFilmById, [id, ]);
-    return res.status(200).json(result.rows);
+    return res.status(200).json(result.rows[0]);
   } catch (err) {
     console.error("Error executing query", err);
     return res.status(500).json({ error: "Internal Server Error" });
