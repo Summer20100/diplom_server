@@ -69,8 +69,8 @@ const getSessionById = async (req, res) => {
     if (result.length === 0) {
       return res.status(401).json({ message: "Session does not exist" });
     }
-    console.log(`Session with ID ${id}:`, result.rows);
-    return res.status(200).json(result.rows);
+    console.log(`Session with ID ${id}:`, result.rows[0]);
+    return res.status(200).json(result.rows[0]);
   } catch (err) {
     console.error("Error retrieving session", err);
     return res.status(500).json({ error: "Internal Server Error" });
