@@ -212,7 +212,7 @@ const createSession = async (req, res) => {
 const updateSession = async (req, res) => {
   const { hall_id, hall_title, session_date, session_start, session_finish, film_id } =
     req.body;
-  const { id } = parseInt(req.params);
+  const id = parseInt(req.params.id);
   try {
     const result = await pool.query(queriesSessions.updateSession, [
       hall_id,
