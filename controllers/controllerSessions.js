@@ -77,6 +77,62 @@ const getSessionById = async (req, res) => {
   }
 };
 
+const getSessionsByDate = async (req, res) => {
+  try {
+    const result = await pool.query(queriesSessions.getSessions);
+    const { rows: sessions } = result;
+    const transformData = [];
+    const groupByDate = sessions.reduce((acc, curr) => {
+      if (!acc[curr.session_date]) {
+          acc[curr.session_date] = {};
+      }
+      if (curr.film_id) {
+          if (!acc[curr.session_date][curr.film_id]) {
+              acc[curr.session_date][curr.film_id] = {};
+          }
+          if (!acc[curr.session_date][curr.film_id][curr.hall_id]) {
+              acc[curr.session_date][curr.film_id][curr.hall_id] = {
+                  hall_title: curr.hall_title,
+                  sessions: []
+              };
+          }
+          acc[curr.session_date][curr.film_id][curr.hall_id].sessions.push({
+              id: curr.id,
+              session_start: curr.session_start,
+              session_finish: curr.session_finish,
+          });
+      }
+      return acc;
+    }, {});
+
+    for (const session_date in groupByDate) {
+      const films = [];
+      for (const film_id in groupByDate[session_date]) {
+          const halls = [];
+          for (const hall_id in groupByDate[session_date][film_id]) {
+              halls.push({
+                  hall_id: parseInt(hall_id),
+                  hall_title: groupByDate[session_date][film_id][hall_id].hall_title,
+                  sessions: groupByDate[session_date][film_id][hall_id].sessions
+              });
+          }
+          films.push({
+              film_id: parseInt(film_id),
+              halls
+          });
+      }
+      transformData.push({
+          session_date,
+          films
+      });
+    }
+    return res.status(200).json(transformData);
+  } catch (err) {
+    console.error("Error executing query", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 const getSessionByHallId = async (req, res) => {
   try {
     const { id } = req.params;
@@ -270,4 +326,5 @@ module.exports = {
   createSession,
   updateSession,
   deleteSession,
+  getSessionsByDate
 };
