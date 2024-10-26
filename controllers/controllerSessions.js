@@ -198,23 +198,16 @@ const getSessionByHallId = async (req, res) => {
 };
 
 const createSession = async (req, res) => {
-  const { hall_id, hall_title, session_date, session_start, session_finish, film_id } =
-    req.body;
+  const { hall_id, hall_title, session_date, session_start, session_finish, film_id } = req.body;
   try {
     if (session_start >= session_finish) {
-      console.log(
-        `Session start ${session_start} is not before finish ${session_finish}`,
-      );
-      return res
-        .status(400)
-        .json({
-          error: `Session start ${session_start} must be before finish ${session_finish}`,
-        });
+      console.log(`Session start ${session_start} is not before finish ${session_finish}`);
+      return res.status(400).json({
+        error: `Session start ${session_start} must be before finish ${session_finish}`,
+      });
     }
 
-    const sessionsByHall = (
-      await pool.query(queriesSessions.getSessionByHallId, [hall_id])
-    ).rows;
+    const sessionsByHall = (await pool.query(queriesSessions.getSessionByHallId, [hall_id])).rows;
 
     let minSessionStart = null;
     let maxSessionFinish = null;
@@ -229,33 +222,19 @@ const createSession = async (req, res) => {
       }, sessionsByHall[0].session_finish);
     }
 
-    // if (minSessionStart !== null && maxSessionFinish !== null) {
-    //   if (
-    //     (session_start >= minSessionStart && session_start < maxSessionFinish) ||
-    //     (session_finish > minSessionStart && session_finish <= maxSessionFinish) ||
-    //     (session_start <= minSessionStart && session_finish >= maxSessionFinish)
-    //   ) {
-    //     console.log(`New session times overlap with existing sessions: minSessionStart ${minSessionStart}, maxSessionFinish ${maxSessionFinish}`);
-    //     return res.status(400).json({
-    //       error: `New session time overlaps with existing sessions: minSessionStart ${minSessionStart}, maxSessionFinish ${maxSessionFinish}`
-    //     });
-    //   }
-    // };
+    // Пропущена проверка на перекрытие времени, если она не нужна.
 
-    await pool.query(queriesSessions.createSession, [
-      hall_id,
-      hall_title,
-      session_date,
-      session_start,
-      session_finish,
-      film_id
-    ], (err, result) => {
-      if (err) {
-        return res.status(400).json({
-          message: "Film not created",
-        });
-      }
-    });
+    const result = await pool.query(
+      queriesSessions.createSession,
+      [
+        hall_id,
+        hall_title,
+        session_date,
+        session_start,
+        session_finish,
+        film_id
+      ]
+    );
 
     const sessionId = result.rows[0].id;
     console.log(`Session was created with ID: ${sessionId}`);
