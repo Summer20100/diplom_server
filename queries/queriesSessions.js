@@ -11,7 +11,7 @@ const queriesSessions = {
     );
   `,
 
-  createSession: `
+createSession: `
     INSERT INTO sessions (
       hall_id,
       hall_title,
@@ -19,7 +19,8 @@ const queriesSessions = {
       session_start,
       session_finish,
       film_id
-    ) VALUES ($1, $2, $3, $4, $5, $6);
+    ) VALUES ($1, $2, $3, $4, $5, $6)
+    RETURNING id;
   `,
 
   getSessions: `
