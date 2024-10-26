@@ -257,8 +257,9 @@ const createSession = async (req, res) => {
       }
     });
 
-    console.log(`Session was created`);
-    return res.status(200).json({ message: `Session was created` });
+    const sessionId = result.rows[0].id;
+    console.log(`Session was created with ID: ${sessionId}`);
+    return res.status(200).json({ message: `Session was created`, session_id: sessionId });
   } catch (err) {
     console.error("Error creating session:", err);
     return res.status(500).json({ error: "Internal Server Error" });
