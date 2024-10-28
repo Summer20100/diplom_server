@@ -11,7 +11,7 @@ const queriesSessions = {
     );
   `,
 
-  createSession: `
+createSession: `
     INSERT INTO sessions (
       hall_id,
       hall_title,
