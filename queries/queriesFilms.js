@@ -9,7 +9,7 @@ const queriesFilms = {
         synopsis TEXT NOT NULL,
         image_url VARCHAR(255) NOT NULL,
         duration INT NOT NULL,
-        session_id INT NULL
+        for_registration BOOLEAN DEFAULT false
       );
     `,
 
@@ -24,7 +24,7 @@ const queriesFilms = {
         synopsis,
         image_url,
         duration,
-        session_id
+        for_registration
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
     `,
 
@@ -45,7 +45,7 @@ const queriesFilms = {
           synopsis = $5,
           image_url = $6,
           duration = $7,
-          session_id = $8
+          for_registration = $8
       WHERE id = $9;
     `,
   

@@ -4,6 +4,7 @@ const routeHall = require("./routes/routeHall");
 const routeFilms = require("./routes/routeFilms");
 const routeChair = require("./routes/routeChair");
 const routeHallChairs = require("./routes/routeHallChairs");
+const routeHallChairsSessions = require("./routes/routeHallChairsSessions");
 const routeSessions = require('./routes/routeSessions');
 
 const app = express();
@@ -42,6 +43,7 @@ app.get("/", (req, res) => {
 app.use(`/${process.env.DB_SECRET}/api/v1/users`, userRoutes);
 app.use("/api/chair", routeChair);
 app.use("/api/hallchairs", routeHallChairs);
+app.use("/api/hallchairs_of_sessions", routeHallChairsSessions);
 app.use("/api/hall", routeHall);
 app.use("/api/films", routeFilms);
 app.use("/api/sessions", routeSessions);

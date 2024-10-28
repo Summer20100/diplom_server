@@ -77,6 +77,62 @@ const getSessionById = async (req, res) => {
   }
 };
 
+const getSessionsByDate = async (req, res) => {
+  try {
+    const result = await pool.query(queriesSessions.getSessions);
+    const { rows: sessions } = result;
+    const transformData = [];
+    const groupByDate = sessions.reduce((acc, curr) => {
+      if (!acc[curr.session_date]) {
+          acc[curr.session_date] = {};
+      }
+      if (curr.film_id) {
+          if (!acc[curr.session_date][curr.film_id]) {
+              acc[curr.session_date][curr.film_id] = {};
+          }
+          if (!acc[curr.session_date][curr.film_id][curr.hall_id]) {
+              acc[curr.session_date][curr.film_id][curr.hall_id] = {
+                  hall_title: curr.hall_title,
+                  sessions: []
+              };
+          }
+          acc[curr.session_date][curr.film_id][curr.hall_id].sessions.push({
+              id: curr.id,
+              session_start: curr.session_start,
+              session_finish: curr.session_finish,
+          });
+      }
+      return acc;
+    }, {});
+
+    for (const session_date in groupByDate) {
+      const films = [];
+      for (const film_id in groupByDate[session_date]) {
+          const halls = [];
+          for (const hall_id in groupByDate[session_date][film_id]) {
+              halls.push({
+                  hall_id: parseInt(hall_id),
+                  hall_title: groupByDate[session_date][film_id][hall_id].hall_title,
+                  sessions: groupByDate[session_date][film_id][hall_id].sessions
+              });
+          }
+          films.push({
+              film_id: parseInt(film_id),
+              halls
+          });
+      }
+      transformData.push({
+          session_date,
+          films
+      });
+    }
+    return res.status(200).json(transformData);
+  } catch (err) {
+    console.error("Error executing query", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 const getSessionByHallId = async (req, res) => {
   try {
     const { id } = req.params;
@@ -142,23 +198,16 @@ const getSessionByHallId = async (req, res) => {
 };
 
 const createSession = async (req, res) => {
-  const { hall_id, hall_title, session_date, session_start, session_finish, film_id } =
-    req.body;
+  const { hall_id, hall_title, session_date, session_start, session_finish, film_id } = req.body;
   try {
     if (session_start >= session_finish) {
-      console.log(
-        `Session start ${session_start} is not before finish ${session_finish}`,
-      );
-      return res
-        .status(400)
-        .json({
-          error: `Session start ${session_start} must be before finish ${session_finish}`,
-        });
+      console.log(`Session start ${session_start} is not before finish ${session_finish}`);
+      return res.status(400).json({
+        error: `Session start ${session_start} must be before finish ${session_finish}`,
+      });
     }
 
-    const sessionsByHall = (
-      await pool.query(queriesSessions.getSessionByHallId, [hall_id])
-    ).rows;
+    const sessionsByHall = (await pool.query(queriesSessions.getSessionByHallId, [hall_id])).rows;
 
     let minSessionStart = null;
     let maxSessionFinish = null;
@@ -173,46 +222,34 @@ const createSession = async (req, res) => {
       }, sessionsByHall[0].session_finish);
     }
 
-    // if (minSessionStart !== null && maxSessionFinish !== null) {
-    //   if (
-    //     (session_start >= minSessionStart && session_start < maxSessionFinish) ||
-    //     (session_finish > minSessionStart && session_finish <= maxSessionFinish) ||
-    //     (session_start <= minSessionStart && session_finish >= maxSessionFinish)
-    //   ) {
-    //     console.log(`New session times overlap with existing sessions: minSessionStart ${minSessionStart}, maxSessionFinish ${maxSessionFinish}`);
-    //     return res.status(400).json({
-    //       error: `New session time overlaps with existing sessions: minSessionStart ${minSessionStart}, maxSessionFinish ${maxSessionFinish}`
-    //     });
-    //   }
-    // };
+    // Пропущена проверка на перекрытие времени, если она не нужна.
 
-    await pool.query(queriesSessions.createSession, [
-      hall_id,
-      hall_title,
-      session_date,
-      session_start,
-      session_finish,
-      film_id
-    ], (err, result) => {
-      if (err) {
-        return res.status(400).json({
-          message: "Film not created",
-        });
-      }
-    });
+    const result = await pool.query(
+      queriesSessions.createSession,
+      [
+        hall_id,
+        hall_title,
+        session_date,
+        session_start,
+        session_finish,
+        film_id
+      ]
+    );
 
-    console.log(`Session was created`);
-    return res.status(200).json({ message: `Session was created` });
+    const sessionId = result.rows[0].id;
+    console.log(`Session was created with ID: ${sessionId}`);
+    return res.status(200).json({ message: `Session was created`, session_id: sessionId });
   } catch (err) {
     console.error("Error creating session:", err);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
+
 const updateSession = async (req, res) => {
   const { hall_id, hall_title, session_date, session_start, session_finish, film_id } =
     req.body;
-  const { id } = parseInt(req.params);
+  const id = parseInt(req.params.id);
   try {
     const result = await pool.query(queriesSessions.updateSession, [
       hall_id,
@@ -270,4 +307,5 @@ module.exports = {
   createSession,
   updateSession,
   deleteSession,
+  getSessionsByDate
 };

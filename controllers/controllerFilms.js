@@ -3,7 +3,7 @@ const pool = require("../db");
 const { queriesFilms } = require("../queries/queriesFilms");
 
 const createFilm = async (req, res) => {
-  const { title, origin, release_date, poster_title, synopsis, image_url, duration, session_id } = req.body;
+  const { title, origin, release_date, poster_title, synopsis, image_url, duration, for_registration } = req.body;
   try {
     pool.query(queriesFilms.checkIsFilmExist, [title, ], (err, result) => {
       if (err) {
@@ -24,7 +24,7 @@ const createFilm = async (req, res) => {
         synopsis, 
         image_url, 
         duration, 
-        session_id
+        for_registration
       ], (err, result) => {
         if (err) {
           return res.status(400).json({
@@ -68,7 +68,7 @@ const updateFilm = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const { title, origin, release_date, poster_title, synopsis, image_url, duration, session_id } = req.body;
+    const { title, origin, release_date, poster_title, synopsis, image_url, duration, for_registration } = req.body;
 
     const result = await pool.query(queriesFilms.getFilmById, [id, ]);
     if (result.rows.length === 0) {
@@ -85,7 +85,7 @@ const updateFilm = async (req, res) => {
       synopsis, 
       image_url, 
       duration, 
-      session_id,
+      for_registration,
       id, 
     ], (err, result) => {
       if (err) {

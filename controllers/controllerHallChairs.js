@@ -12,12 +12,90 @@ const getHallChairs = async (req, res) => {
   }
 };
 
+
+
+const getHallChairsOfSession = async (req, res) => {
+  try {
+    const result = await pool.query(queriesHallChairs.getHallChairsOfSession)
+    return res.status(200).json(result.rows)
+  } catch (err) {
+    console.error("Error executing query", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+const getHallChairsByIdOfSession = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = (await pool.query(queriesHallChairs.getHallChairsByIdOfSession, [id, ])).rows;
+    if (result.length === 0) {
+      return res.status(404).json({ message: "Session does not exist"})
+    }
+    return res.status(200).json(result)
+  } catch (err) {
+    console.error("Error executing query", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+const addHallChairsOfSession = async (req, res) => {
+  const hallSeatsOfSession = req.body;
+  try {
+    if (!hallSeatsOfSession || hallSeatsOfSession.length === 0) {
+      return res.status(400).json({ error: "No hall seats of session provided" });
+    }
+    for (const seat of hallSeatsOfSession) {
+      const { id_seat, hall_id, hall_title, row_number, seat_number, chair_type, price, session_id } = seat;
+      await pool.query(queriesHallChairs.addHallChairs, [
+        id_seat,
+        hall_id,
+        hall_title,
+        row_number,
+        seat_number,
+        chair_type,
+        price,
+        session_id
+      ]);
+    }
+    console.log({ message: 'Hall seats of session added successfully'})
+    return res.status(200).json({ message: 'Hall seats of session added successfully'})
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+const updateHallChairByIdSeatForBuying = async (req, res) => {
+  const id  = parseInt(req.params.id);
+
+  try {
+    const id_seat = parseInt(req.query.seat);
+    const check_is_buying = req.body.check_is_buying;
+
+    const response = await pool.query(queriesHallChairs.updateHallChairByIdSeatForBuying, [id, id_seat, check_is_buying, ]);
+    if (response.rowCount > 0) {
+      console.log({ message: 'Buying status updated successfully'});
+      return res.status(200).json({ message: `Buying status updated successfully`});
+    } else {
+      console.log({ message: 'Buying status not updated'});
+      return res.status(404).json({ message: `Buying status not updated`});
+    }
+  } catch(err) {
+    console.error(err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
+
+
+
 const getHallChairsById = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = (await pool.query(queriesHallChairs.getHallChairsById, [id,])).rows;
+    const result = (await pool.query(queriesHallChairs.getHallChairsById, [id, ])).rows;
     if (result.length === 0) {
-      return res.status(401).json({ message: "Hall does not exist"})
+      return res.status(404).json({ message: "Hall does not exist"})
     }
     return res.status(200).json(result)    
   } catch (err) {
@@ -39,6 +117,9 @@ const createTableHallChairs = async (req, res) => {
 const addHallChairs = async (req, res) => {
   const hallSeats = req.body;
   try {
+    if (!hallSeats || hallSeats.length === 0) {
+      return res.status(400).json({ error: "No hall seats provided" });
+    }
     for (const seat of hallSeats) {
       const { id_seat, hall_id, hall_title, row_number, seat_number, chair_type, price } = seat;
       await pool.query(queriesHallChairs.addHallChairs, [
@@ -59,7 +140,7 @@ const addHallChairs = async (req, res) => {
   }
 };
 
-const updatePriceHallCairs = async (req, res) => {
+const updatePriceHallChairs = async (req, res) => {
   const id  = req.params.id;
 
   try {
@@ -74,10 +155,11 @@ const updatePriceHallCairs = async (req, res) => {
       console.log({ message: 'Type of chair updated successfully'});
       return res.status(200).json({ message: `Type of chair updated successfully`});
     }
-
-    await pool.query(queriesHallChairs.updatePriceHallCairs, [price, type, id,]);
-    console.log({ message: 'Price updated successfully'});
-    return res.status(200).json({ message: `Price updated successfully`});
+    if (price && type) {
+      await pool.query(queriesHallChairs.updatePriceHallChairs, [price, type, id]);
+      console.log({ message: 'Price updated successfully' });
+      return res.status(200).json({ message: `Price updated successfully` });
+   }
   } catch(err) {
     console.error(err);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -97,11 +179,17 @@ const deleteHallChairs = async (req, res) => {
 };
 
 module.exports = {
-    getHallChairs,
-    getHallChairsById,
-    createTableHallChairs,
-    addHallChairs,
-    // updateHallChairByIdSeat,
-    deleteHallChairs,
-    updatePriceHallCairs
+  getHallChairs,
+  getHallChairsById,
+  createTableHallChairs,
+  addHallChairs,
+  // updateHallChairByIdSeat,
+  deleteHallChairs,
+  updatePriceHallChairs,
+
+  getHallChairsOfSession,
+  getHallChairsByIdOfSession,
+  addHallChairsOfSession,
+  updateHallChairByIdSeatForBuying,
+
 };
