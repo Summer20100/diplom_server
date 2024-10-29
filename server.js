@@ -1,8 +1,10 @@
 const express = require("express");
+
 const userRoutes = require("./src/user/routes");
 const routeHall = require("./routes/routeHall");
 const routeFilms = require("./routes/routeFilms");
 const routeChair = require("./routes/routeChair");
+const routeQRCode = require('./routes/routeQRCode');
 const routeHallChairs = require("./routes/routeHallChairs");
 const routeHallChairsSessions = require("./routes/routeHallChairsSessions");
 const routeSessions = require('./routes/routeSessions');
@@ -47,6 +49,7 @@ app.use("/api/hallchairs_of_sessions", routeHallChairsSessions);
 app.use("/api/hall", routeHall);
 app.use("/api/films", routeFilms);
 app.use("/api/sessions", routeSessions);
+app.use( "/api/qrcode", routeQRCode);
 
 app.listen(PORT, () => {
   console.log(`Server running on port http://localhost:${PORT}`);
