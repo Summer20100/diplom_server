@@ -1,5 +1,6 @@
 const pool = require("../db");
 const { queriesSessions } = require("../queries/queriesSessions");
+const { queriesFilms } = require("../queries/queriesFilms");
 
 const getSessions = async (req, res) => {
   try {
@@ -251,11 +252,115 @@ const createSession = async (req, res) => {
   }
 };
 
-const updateSession = async (req, res) => {
-  const { hall_id, hall_title, session_date, session_start, session_finish, film_id } =
-    req.body;
-  const id = parseInt(req.params.id);
+/* const updateSession = async (req, res) => {
   try {
+    const { hall_id, hall_title, session_date, session_start, session_finish, film_id } =
+    req.body;
+    const id = parseInt(req.params.id);
+
+    const resultSession = await pool.query(queriesSessions.getSessionById, [id]);
+    const session = resultSession.rows[0];
+    if (!session) {
+      return res.status(404).json({ message: "Сеанс не найден" });
+    };
+    
+    const resultFilm = await pool.query(queriesFilms.getFilmById, [film_id]);
+    const film = resultFilm.rows[0];
+    if (!film) {
+      return res.status(404).json({ message: "Фильм не найден" });
+    };
+    
+    function duration(start, finish) {
+      const startHour = parseInt(start.split(":")[0]);
+      const startMinute = parseInt(start.split(":")[1]);
+      const currentDuration = startHour * 60 + startMinute;
+  
+      const finishHour = parseInt(finish.split(":")[0]);
+      const finishMinute = parseInt(finish.split(":")[1]);
+      const finishDuration = finishHour * 60 + finishMinute;
+      return finishDuration - currentDuration;
+    }
+
+    const {session_start: start, session_finish: finish } = session;
+    const { duration: filmDuration, title } = film;
+
+
+    const date = new Date(session_date);
+    const formattedDate = new Intl.DateTimeFormat('ru-RU').format(date);
+
+    if (filmDuration <= duration(start, finish)) {
+      const result = await pool.query(queriesSessions.updateSession, [
+        hall_id,
+        hall_title,
+        session_date,
+        session_start,
+        session_finish,
+        film_id,
+        id,
+      ]);
+
+      if (result.rowCount > 0) {
+        console.log(`Фильм "${title}" успешно назначен на сеанс ${session_date} в ${session_start}`);
+        return res
+          .status(200)
+          .json({ message: `Фильм "${title}" успешно назначен на сеанс ${formattedDate} в ${session_start.slice(0, 5)}` });
+      } else {
+        console.log(`Фильм не назначен. Длительность фильма (${filmDuration} мин.) больше длительности сеанса (${duration(start, finish)} мин.)`);
+        return res.status(404).json({ message: `Фильм не назначен. Длительность фильма (${filmDuration} мин.) больше длительности сеанса (${duration(start, finish)} мин.)` });
+      }
+    } else {
+      console.log(`Фильм не назначен. Длительность фильма (${filmDuration} мин.) больше длительности сеанса (${duration(start, finish)} мин.)`);
+      return res.status(404).json({ message: `Фильм не назначен. Длительность фильма (${filmDuration} мин.) больше длительности сеанса (${duration(start, finish)} мин.)` });
+    }
+  } catch (err) {
+    console.error("Error updating session:", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+}; */
+
+const updateSession = async (req, res) => {
+  try {
+    const { hall_id, hall_title, session_date, session_start, session_finish, film_id } = req.body;
+    const id = parseInt(req.params.id);
+
+    const resultSession = await pool.query(queriesSessions.getSessionById, [id]);
+    const session = resultSession.rows[0];
+    if (!session) {
+      return res.status(404).json({ message: "Сеанс не найден" });
+    }
+    
+    const resultFilm = await pool.query(queriesFilms.getFilmById, [film_id]);
+    const film = resultFilm.rows[0];
+    if (!film) {
+      return res.status(404).json({ message: "Фильм не найден" });
+    }
+    
+    function duration(start, finish) {
+      const [startHour, startMinute] = start.split(":").map(Number);
+      const [finishHour, finishMinute] = finish.split(":").map(Number);
+      
+      const startMinutes = startHour * 60 + startMinute;
+      const finishMinutes = finishHour * 60 + finishMinute;
+      
+      // Учет перехода через полночь
+      return finishMinutes >= startMinutes 
+        ? finishMinutes - startMinutes 
+        : (1440 - startMinutes + finishMinutes);
+    }
+
+    const { session_start: start, session_finish: finish } = session;
+    const { duration: filmDuration, title } = film;
+
+    const date = new Date(session_date);
+    const formattedDate = new Intl.DateTimeFormat('ru-RU').format(date);
+
+    const sessionDuration = duration(session_start, session_finish);
+
+    if (filmDuration > sessionDuration) {
+      console.log(`Фильм не назначен. Длительность фильма (${filmDuration} мин.) больше длительности сеанса (${sessionDuration} мин.)`);
+      return res.status(404).json({ message: `Фильм не назначен. Длительность фильма (${filmDuration} мин.) больше длительности сеанса (${sessionDuration} мин.)` });
+    }
+
     const result = await pool.query(queriesSessions.updateSession, [
       hall_id,
       hall_title,
@@ -267,19 +372,18 @@ const updateSession = async (req, res) => {
     ]);
 
     if (result.rowCount > 0) {
-      console.log(`Session with ID ${id} updated successfully.`);
-      return res
-        .status(200)
-        .json({ message: `Session with ID ${id} updated successfully.` });
+      console.log(`Фильм "${title}" успешно назначен на сеанс ${session_date} в ${session_start}`);
+      return res.status(200).json({ message: `Фильм "${title}" успешно назначен на сеанс ${formattedDate} в ${session_start.slice(0, 5)}` });
     } else {
-      console.log(`No session found with ID ${id}.`);
-      return res.status(404).json({ error: `No session found with ID ${id}.` });
+      return res.status(500).json({ message: "Не удалось обновить сеанс" });
     }
   } catch (err) {
     console.error("Error updating session:", err);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+
 
 const deleteSession = async (req, res) => {
   const { id } = req.params;
