@@ -194,8 +194,16 @@ const getSessionByHallId = async (req, res) => {
 };
 
 const createSession = async (req, res) => {
-  const { hall_id, hall_title, session_date, session_start, session_finish, film_id } = req.body;
   try {
+    const { hall_id, hall_title, session_date, session_start, session_finish, film_id } = req.body;
+
+    const resultSessions = await pool.query(queriesSessions.getSessions);
+    const sessions = resultSessions.rows;
+    const formatDate = (dateString) => {
+      const date = new Date(dateString);
+      return date.toISOString().split('T')[0];
+    };
+
     if (session_start >= session_finish) {
       console.log(`Session start ${session_start} is not before finish ${session_finish}`);
       return res.status(401).json({
@@ -205,20 +213,9 @@ const createSession = async (req, res) => {
 
     const sessionsByHall = (await pool.query(queriesSessions.getSessionByHallId, [hall_id])).rows;
 
-    let minSessionStart = null;
-    let maxSessionFinish = null;
+    const filterSessionsByDate = sessionsByHall.filter(session => formatDate(session.session_date) === session_date);
 
-    if (sessionsByHall.length > 0) {
-      minSessionStart = sessionsByHall.reduce((min, session) => {
-        return min < session.session_start ? min : session.session_start;
-      }, sessionsByHall[0].session_start);
-
-      maxSessionFinish = sessionsByHall.reduce((max, session) => {
-        return max > session.session_finish ? max : session.session_finish;
-      }, sessionsByHall[0].session_finish);
-    };
-
-    for (const session of sessionsByHall) {
+    for (const session of filterSessionsByDate) {
       const isOverlapping =
         (session_start < session.session_finish && session_finish > session.session_start) || // Пересечение
         (session_start >= session.session_start && session_start < session.session_finish) || // Новый начинается в рамках существующего
