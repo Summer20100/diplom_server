@@ -198,8 +198,8 @@ const createSession = async (req, res) => {
   try {
     if (session_start >= session_finish) {
       console.log(`Session start ${session_start} is not before finish ${session_finish}`);
-      return res.status(400).json({
-        error: `Session start ${session_start} must be before finish ${session_finish}`,
+      return res.status(401).json({
+        message: `Session start ${session_start} must be before finish ${session_finish}`,
       });
     }
 
@@ -227,7 +227,7 @@ const createSession = async (req, res) => {
 
       if (isOverlapping) {
         console.log(`Session time ${session_start} to ${session_finish} overlaps with existing session ${session.session_start} to ${session.session_finish}`);
-        return res.status(400).json({
+        return res.status(401).json({
           message: `Session time ${session_start} to ${session_finish} overlaps with existing session ${session.session_start} to ${session.session_finish}`,
         });
       }
