@@ -43,7 +43,6 @@ const getSessionsHalls = async (req, res) => {
       return acc;
     }, {});
     
-    // Convert to array format
     const finalData = Object.values(modifiedData).map(hallData => ({
       hall_id: hallData.hall_id,
       hall_title: hallData.hall_title,
@@ -53,8 +52,6 @@ const getSessionsHalls = async (req, res) => {
       }))
     }));
     
-    console.log(finalData);
-
     return res.status(200).json(finalData);
   } catch (err) {
     console.error("Error executing query", err);
@@ -139,7 +136,6 @@ const getSessionByHallId = async (req, res) => {
     const result = await pool.query(queriesSessions.getSessionByHallId, [id]);
     const { rows: sessions } = result;
 
-
     const groupedByDate = sessions.reduce((acc, session) => {
       const { session_date, id, session_start, session_finish } = session;
       if (!acc[session_date]) {
@@ -220,9 +216,22 @@ const createSession = async (req, res) => {
       maxSessionFinish = sessionsByHall.reduce((max, session) => {
         return max > session.session_finish ? max : session.session_finish;
       }, sessionsByHall[0].session_finish);
-    }
+    };
 
-    // Пропущена проверка на перекрытие времени, если она не нужна.
+    for (const session of sessionsByHall) {
+      const isOverlapping =
+        (session_start < session.session_finish && session_finish > session.session_start) || // Пересечение
+        (session_start >= session.session_start && session_start < session.session_finish) || // Новый начинается в рамках существующего
+        (session_finish > session.session_start && session_finish <= session.session_finish) || // Новый заканчивается в рамках существующего
+        (session_start <= session.session_start && session_finish >= session.session_finish); // Новый полностью охватывает существующий
+
+      if (isOverlapping) {
+        console.log(`Session time ${session_start} to ${session_finish} overlaps with existing session ${session.session_start} to ${session.session_finish}`);
+        return res.status(400).json({
+          message: `Session time ${session_start} to ${session_finish} overlaps with existing session ${session.session_start} to ${session.session_finish}`,
+        });
+      }
+    };
 
     const result = await pool.query(
       queriesSessions.createSession,
@@ -244,7 +253,6 @@ const createSession = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
 
 const updateSession = async (req, res) => {
   const { hall_id, hall_title, session_date, session_start, session_finish, film_id } =
