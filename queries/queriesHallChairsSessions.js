@@ -12,7 +12,7 @@ const queriesHallChairsSessions = {
       check_is_buying BOOLEAN DEFAULT false
     );`,
 
-  getHallChairsOfSession: "SELECT * FROM hall_chairs_of_session;",
+  getHallChairsOfSession: "SELECT * FROM hall_chairs_of_session ORDER BY session_id, id_seat;",
 
   getHallChairsByIdOfSession: "SELECT * FROM hall_chairs_of_session WHERE session_id = $1 ORDER BY id_seat;",
 

@@ -64,10 +64,15 @@ const updateHallChairByIdSeatForBuying = async (req, res) => {
   const id  = parseInt(req.params.id);
 
   try {
-    const id_seat = parseInt(req.query.seat);
+    const id_seat = parseInt(req.body.id_seat);
     const check_is_buying = req.body.check_is_buying;
 
+    if (isNaN(id) || isNaN(id_seat) || typeof check_is_buying !== 'boolean') {
+      return res.status(400).json({ error: "Invalid input data" });
+    };
+
     const response = await pool.query(queriesHallChairsSessions.updateHallChairByIdSeatForBuying, [id, id_seat, check_is_buying, ]);
+
     if (response.rowCount > 0) {
       console.log({ message: 'Buying status updated successfully'});
       return res.status(200).json({ message: `Buying status updated successfully`});
