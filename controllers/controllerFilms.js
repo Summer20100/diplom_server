@@ -8,12 +8,12 @@ const createFilm = async (req, res) => {
     pool.query(queriesFilms.checkIsFilmExist, [title, ], (err, result) => {
       if (err) {
         return res.status(500).json({
-          message: "Error checking if film exists",
+          error: "Error checking if film exists",
         });
       };
       if (result.rows.length) {
         return res.status(400).json({
-          message: `${title} already exists`,
+          error: `${title} already exists`,
         });
       };
       pool.query(queriesFilms.createFilm, [
@@ -28,7 +28,7 @@ const createFilm = async (req, res) => {
       ], (err, result) => {
         if (err) {
           return res.status(400).json({
-            message: "Film not created",
+            error: "Film not created",
           });
         }
       });
@@ -38,7 +38,7 @@ const createFilm = async (req, res) => {
     })
   } catch(err) {
     console.log(err);
-    return res.status(500).json({ message: "Internal Server Error" });
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
@@ -73,7 +73,7 @@ const updateFilm = async (req, res) => {
     const result = await pool.query(queriesFilms.getFilmById, [id, ]);
     if (result.rows.length === 0) {
       return res.status(400).json({
-        message: "Film is not exists",
+        error: "Film is not exists",
       })
     };
 
@@ -90,7 +90,7 @@ const updateFilm = async (req, res) => {
     ], (err, result) => {
       if (err) {
         return res.status(400).json({
-          message: "Film not updated",
+          error: "Film not updated",
         });
       }
     });
@@ -109,14 +109,14 @@ const removeFilmById = async (req, res) => {
     const result = await pool.query(queriesFilms.getFilmById, [id, ]);
     if (result.rows.length === 0) {
       return res.status(400).json({
-        message: "Film is not exists",
+        error: "Film is not exists",
       })
     }
     await pool.query(queriesFilms.deleteFilm, [id, ]);
     return res.status(200).json({ film: result.rows, message: `Film deleted successfully` });
   } catch (err) {
     console.error("Error executing query", err);
-    return res.status(500).json({ message: "Internal Server Error" });
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 
 }
