@@ -12,8 +12,6 @@ const getHallChairs = async (req, res) => {
   }
 };
 
-
-
 const getHallChairsOfSession = async (req, res) => {
   try {
     const result = await pool.query(queriesHallChairs.getHallChairsOfSession)
@@ -29,7 +27,7 @@ const getHallChairsByIdOfSession = async (req, res) => {
     const { id } = req.params;
     const result = (await pool.query(queriesHallChairs.getHallChairsByIdOfSession, [id, ])).rows;
     if (result.length === 0) {
-      return res.status(404).json({ message: "Session does not exist"})
+      return res.status(404).json({ error: "Session does not exist"})
     }
     return res.status(200).json(result)
   } catch (err) {
@@ -78,7 +76,7 @@ const updateHallChairByIdSeatForBuying = async (req, res) => {
       return res.status(200).json({ message: `Buying status updated successfully`});
     } else {
       console.log({ message: 'Buying status not updated'});
-      return res.status(404).json({ message: `Buying status not updated`});
+      return res.status(404).json({ error: `Buying status not updated`});
     }
   } catch(err) {
     console.error(err);
@@ -86,16 +84,12 @@ const updateHallChairByIdSeatForBuying = async (req, res) => {
   }
 };
 
-
-
-
-
 const getHallChairsById = async (req, res) => {
   try {
     const { id } = req.params;
     const result = (await pool.query(queriesHallChairs.getHallChairsById, [id, ])).rows;
     if (result.length === 0) {
-      return res.status(404).json({ message: "Hall does not exist"})
+      return res.status(404).json({ error: "Hall does not exist"})
     }
     return res.status(200).json(result)    
   } catch (err) {
@@ -183,7 +177,7 @@ module.exports = {
   getHallChairsById,
   createTableHallChairs,
   addHallChairs,
-  // updateHallChairByIdSeat,
+
   deleteHallChairs,
   updatePriceHallChairs,
 
