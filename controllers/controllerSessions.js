@@ -252,72 +252,6 @@ const createSession = async (req, res) => {
   }
 };
 
-/* const updateSession = async (req, res) => {
-  try {
-    const { hall_id, hall_title, session_date, session_start, session_finish, film_id } =
-    req.body;
-    const id = parseInt(req.params.id);
-
-    const resultSession = await pool.query(queriesSessions.getSessionById, [id]);
-    const session = resultSession.rows[0];
-    if (!session) {
-      return res.status(404).json({ message: "Сеанс не найден" });
-    };
-    
-    const resultFilm = await pool.query(queriesFilms.getFilmById, [film_id]);
-    const film = resultFilm.rows[0];
-    if (!film) {
-      return res.status(404).json({ message: "Фильм не найден" });
-    };
-    
-    function duration(start, finish) {
-      const startHour = parseInt(start.split(":")[0]);
-      const startMinute = parseInt(start.split(":")[1]);
-      const currentDuration = startHour * 60 + startMinute;
-  
-      const finishHour = parseInt(finish.split(":")[0]);
-      const finishMinute = parseInt(finish.split(":")[1]);
-      const finishDuration = finishHour * 60 + finishMinute;
-      return finishDuration - currentDuration;
-    }
-
-    const {session_start: start, session_finish: finish } = session;
-    const { duration: filmDuration, title } = film;
-
-
-    const date = new Date(session_date);
-    const formattedDate = new Intl.DateTimeFormat('ru-RU').format(date);
-
-    if (filmDuration <= duration(start, finish)) {
-      const result = await pool.query(queriesSessions.updateSession, [
-        hall_id,
-        hall_title,
-        session_date,
-        session_start,
-        session_finish,
-        film_id,
-        id,
-      ]);
-
-      if (result.rowCount > 0) {
-        console.log(`Фильм "${title}" успешно назначен на сеанс ${session_date} в ${session_start}`);
-        return res
-          .status(200)
-          .json({ message: `Фильм "${title}" успешно назначен на сеанс ${formattedDate} в ${session_start.slice(0, 5)}` });
-      } else {
-        console.log(`Фильм не назначен. Длительность фильма (${filmDuration} мин.) больше длительности сеанса (${duration(start, finish)} мин.)`);
-        return res.status(404).json({ message: `Фильм не назначен. Длительность фильма (${filmDuration} мин.) больше длительности сеанса (${duration(start, finish)} мин.)` });
-      }
-    } else {
-      console.log(`Фильм не назначен. Длительность фильма (${filmDuration} мин.) больше длительности сеанса (${duration(start, finish)} мин.)`);
-      return res.status(404).json({ message: `Фильм не назначен. Длительность фильма (${filmDuration} мин.) больше длительности сеанса (${duration(start, finish)} мин.)` });
-    }
-  } catch (err) {
-    console.error("Error updating session:", err);
-    return res.status(500).json({ error: "Internal Server Error" });
-  }
-}; */
-
 const updateSession = async (req, res) => {
   try {
     const { hall_id, hall_title, session_date, session_start, session_finish, film_id } = req.body;
@@ -327,12 +261,6 @@ const updateSession = async (req, res) => {
     const session = resultSession.rows[0];
     if (!session) {
       return res.status(404).json({ message: "Сеанс не найден" });
-    }
-    
-    const resultFilm = await pool.query(queriesFilms.getFilmById, [film_id]);
-    const film = resultFilm.rows[0];
-    if (!film) {
-      return res.status(404).json({ message: "Фильм не найден" });
     }
     
     function duration(start, finish) {
@@ -346,10 +274,18 @@ const updateSession = async (req, res) => {
       return finishMinutes >= startMinutes 
         ? finishMinutes - startMinutes 
         : (1440 - startMinutes + finishMinutes);
-    }
+    };
+
+    const resultFilm = await pool.query(queriesFilms.getFilmById, [film_id]);
+    const film = resultFilm.rows[0];
+
+    const filmDuration = film ? film.duration : 0;
+    const title = film ? film.title : "";
+/*     if (!film) {
+      return res.status(404).json({ message: "Фильм не найден" });
+    } */
 
     const { session_start: start, session_finish: finish } = session;
-    const { duration: filmDuration, title } = film;
 
     const date = new Date(session_date);
     const formattedDate = new Intl.DateTimeFormat('ru-RU').format(date);
@@ -372,8 +308,13 @@ const updateSession = async (req, res) => {
     ]);
 
     if (result.rowCount > 0) {
-      console.log(`Фильм "${title}" успешно назначен на сеанс ${session_date} в ${session_start}`);
-      return res.status(200).json({ message: `Фильм "${title}" успешно назначен на сеанс ${formattedDate} в ${session_start.slice(0, 5)}` });
+      if (title === "" && filmDuration === 0) {
+        console.log(`Фильм успешно снят с сеанса ${session_date} в ${session_start}`);
+        return res.status(200).json({ message: `Фильм успешно снят с сеанса ${formattedDate} в ${session_start.slice(0, 5)}` });
+      } else {
+        console.log(`Фильм "${title}" успешно назначен на сеанс ${session_date} в ${session_start}`);
+        return res.status(200).json({ message: `Фильм "${title}" успешно назначен на сеанс ${formattedDate} в ${session_start.slice(0, 5)}` });
+      }
     } else {
       return res.status(500).json({ message: "Не удалось обновить сеанс" });
     }
@@ -382,7 +323,6 @@ const updateSession = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
 
 
 const deleteSession = async (req, res) => {
