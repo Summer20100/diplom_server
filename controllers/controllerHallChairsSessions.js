@@ -16,12 +16,12 @@ const getHallChairsByIdOfSession = async (req, res) => {
     const { id } = req.params;
     const result = (await pool.query(queriesHallChairsSessions.getHallChairsByIdOfSession, [id, ])).rows;
     if (result.length === 0) {
-      return res.status(404).json({ message: "Session does not exist"})
+      return res.status(404).json({ error: "Session does not exist"})
     }
     return res.status(200).json(result)
   } catch (err) {
     console.error("Error executing query", err);
-    return res.status(500).json({ message: "Internal Server Error" });
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
@@ -78,14 +78,13 @@ const updateHallChairByIdSeatForBuying = async (req, res) => {
       return res.status(200).json({ message: `Buying status updated successfully`});
     } else {
       console.log({ message: 'Buying status not updated'});
-      return res.status(404).json({ message: `Buying status not updated`});
+      return res.status(404).json({ error: `Buying status not updated`});
     }
   } catch(err) {
     console.error(err);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
 
 module.exports = {
   getHallChairsOfSession,
