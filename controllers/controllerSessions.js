@@ -65,7 +65,7 @@ const getSessionById = async (req, res) => {
     const { id } = req.params;
     const result = await pool.query(queriesSessions.getSessionById, [id, ]);
     if (result.length === 0) {
-      return res.status(401).json({ message: "Session does not exist" });
+      return res.status(401).json({ error: "Session does not exist" });
     }
     console.log(`Session with ID ${id}:`, result.rows[0]);
     return res.status(200).json(result.rows[0]);
@@ -109,9 +109,9 @@ const getSessionsByDate = async (req, res) => {
           const halls = [];
           for (const hall_id in groupByDate[session_date][film_id]) {
               halls.push({
-                  hall_id: parseInt(hall_id),
-                  hall_title: groupByDate[session_date][film_id][hall_id].hall_title,
-                  sessions: groupByDate[session_date][film_id][hall_id].sessions
+                hall_id: parseInt(hall_id),
+                hall_title: groupByDate[session_date][film_id][hall_id].hall_title,
+                sessions: groupByDate[session_date][film_id][hall_id].sessions
               });
           }
           films.push({
@@ -147,7 +147,7 @@ const getSessionByHallId = async (req, res) => {
     }, {});
 
     if (result.length === 0) {
-      return res.status(401).json({ message: "Session does not exist" });
+      return res.status(401).json({ error: "Session does not exist" });
     }
 
     const modifiedData = sessions.reduce((acc, session) => {
@@ -184,9 +184,7 @@ const getSessionByHallId = async (req, res) => {
         session
       }))
     };
-      
-    // return res.status(200).json(groupedByDate);
-    // return res.status(200).json(result.rows);
+
     return res.status(200).json(finalData);
   } catch (err) {
     console.error("Error retrieving session", err);
@@ -208,7 +206,7 @@ const createSession = async (req, res) => {
     if (session_start >= session_finish) {
       console.log(`Session start ${session_start} is not before finish ${session_finish}`);
       return res.status(401).json({
-        message: `Session start ${session_start} must be before finish ${session_finish}`,
+        error: `Session start ${session_start} must be before finish ${session_finish}`,
       });
     }
 
@@ -226,7 +224,7 @@ const createSession = async (req, res) => {
       if (isOverlapping) {
         console.log(`Session time ${session_start} to ${session_finish} overlaps with existing session ${session.session_start} to ${session.session_finish}`);
         return res.status(401).json({
-          message: `Session time ${session_start} to ${session_finish} overlaps with existing session ${session.session_start} to ${session.session_finish}`,
+          error: `Session time ${session_start} to ${session_finish} overlaps with existing session ${session.session_start} to ${session.session_finish}`,
         });
       }
     };
@@ -260,7 +258,7 @@ const updateSession = async (req, res) => {
     const resultSession = await pool.query(queriesSessions.getSessionById, [id]);
     const session = resultSession.rows[0];
     if (!session) {
-      return res.status(404).json({ message: "Сеанс не найден" });
+      return res.status(404).json({ error: "Сеанс не найден" });
     }
     
     function duration(start, finish) {
@@ -294,7 +292,7 @@ const updateSession = async (req, res) => {
 
     if (filmDuration > sessionDuration) {
       console.log(`Фильм не назначен. Длительность фильма (${filmDuration} мин.) больше длительности сеанса (${sessionDuration} мин.)`);
-      return res.status(404).json({ message: `Фильм не назначен. Длительность фильма (${filmDuration} мин.) больше длительности сеанса (${sessionDuration} мин.)` });
+      return res.status(404).json({ error: `Фильм не назначен. Длительность фильма (${filmDuration} мин.) больше длительности сеанса (${sessionDuration} мин.)` });
     }
 
     const result = await pool.query(queriesSessions.updateSession, [
@@ -316,7 +314,7 @@ const updateSession = async (req, res) => {
         return res.status(200).json({ message: `Фильм "${title}" успешно назначен на сеанс ${formattedDate} в ${session_start.slice(0, 5)}` });
       }
     } else {
-      return res.status(500).json({ message: "Не удалось обновить сеанс" });
+      return res.status(500).json({ error: "Не удалось обновить сеанс" });
     }
   } catch (err) {
     console.error("Error updating session:", err);
