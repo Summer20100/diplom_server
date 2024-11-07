@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS "halls" (
+CREATE TABLE IF NOT EXISTS halls (
     id SERIAL PRIMARY KEY, 
     hall_title VARCHAR(255) UNIQUE NOT NULL
 );
@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS films (
     for_registration BOOLEAN DEFAULT false
 );
 
-CREATE TABLE IF NOT EXISTS "chair_types" (
+CREATE TABLE IF NOT EXISTS chair_types (
     id SERIAL PRIMARY KEY, 
     "type" VARCHAR(255) UNIQUE NOT NULL
 );
