@@ -29,13 +29,47 @@ const getChairsTypesById = async (req, res) => {
     if (result.rows.length === 0) {
       return sendResponse(res, 404, { error: "Chair not found" });
     }
-    return sendResponse(res, 200, result.rows);
+    return sendResponse(res, 200, result.rows[0]);
   } catch (err) {
     return handleError(res, err);
   }
 };
 
+const createChairsTypesById = async (req, res) => {
+  const { type } = req.body;
+  try {
+    const ifExist = await pool.query(queriesChair.getChairByType, [type, ]);
+    if (ifExist.rows.length > 0) {
+      return sendResponse(res, 401, { message: "Chair type exists" });
+    }
+
+    const result = await pool.query(queriesChair.createChairsType, [type]);
+    return sendResponse(res, 201, {
+      message: `Chair type "${type}" created successfully`
+    });
+  } catch (err) {
+    return handleError(res, err, "Failed to create chair type");
+  }
+};
+
+const deleteChairsTypeById = async (req, res) => {
+  const id = parseInt(req.params.id);
+  try {
+    const result = await pool.query(queriesChair.deleteChairsTypeById, [id, ]);
+
+    if (result.rowCount === 0) {
+      return sendResponse(res, 404, { error: "Chair type not found" });
+    }
+
+    return sendResponse(res, 200, { message: "Chair type deleted successfully" });
+  } catch (err) {
+    return handleError(res, err, "Failed to delete chair type");
+  }
+};
+
 module.exports = {
+  createChairsTypesById,
   getChairsTypes,
-  getChairsTypesById
+  getChairsTypesById,
+  deleteChairsTypeById
 };

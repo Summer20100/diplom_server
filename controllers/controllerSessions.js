@@ -210,9 +210,11 @@ const createSession = async (req, res) => {
       });
     }
 
-    const sessionsByHall = (await pool.query(queriesSessions.getSessionByHallId, [hall_id])).rows;
+    const neWdate = new Date(session_date);
+    neWdate.setDate(neWdate.getDate() -1);
 
-    const filterSessionsByDate = sessionsByHall.filter(session => formatDate(session.session_date) === session_date);
+    const sessionsByHall = (await pool.query(queriesSessions.getSessionByHallId, [hall_id])).rows;
+    const filterSessionsByDate = sessionsByHall.filter(session => formatDate(session.session_date) === formatDate(neWdate));
 
     for (const session of filterSessionsByDate) {
       const isOverlapping =
@@ -330,12 +332,12 @@ const deleteSession = async (req, res) => {
     const result = await pool.query(queriesSessions.deleteSession, [id]);
 
     if (result.rowCount > 0) {
-      console.log(`Session with ID ${id} deleted successfully.`);
+      console.log(`Session deleted successfully.`);
       return res
         .status(200)
-        .json({ message: `Session with ID ${id} deleted successfully` });
+        .json({ message: `Session deleted successfully` });
     } else {
-      console.log(`Session with ID ${id} does not exist`);
+      console.log(`Session does not exist`);
       return res
         .status(404)
         .json({ error: `Session with ID ${id} does not exist` });
