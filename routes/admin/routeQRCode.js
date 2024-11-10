@@ -1,6 +1,6 @@
 const { Router } = require("express");
 
-const controllerQRCode = require("../controllers/controllerQRCode");
+const controllerQRCode = require("../../controllers/admin/controllerQRCode");
 
 const router = Router();
 

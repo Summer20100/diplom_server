@@ -1,5 +1,5 @@
-const pool = require("../db");
-const { queriesChair } = require("../queries/queriesChair");
+const pool = require("../../db");
+const { queriesChair } = require("../../queries/admin/queriesChair");
 
 const sendResponse = (res, status, data) => {
   return res.status(status).json(data);

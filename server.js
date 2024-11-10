@@ -1,13 +1,18 @@
 const express = require("express");
 
 const userRoutes = require("./src/user/routes");
-const routeHall = require("./routes/routeHall");
-const routeFilms = require("./routes/routeFilms");
-const routeChair = require("./routes/routeChair");
-const routeQRCode = require('./routes/routeQRCode');
-const routeHallChairs = require("./routes/routeHallChairs");
-const routeHallChairsSessions = require("./routes/routeHallChairsSessions");
-const routeSessions = require('./routes/routeSessions');
+const routeHall = require("./routes/admin/routeHall");
+const routeFilms = require("./routes/admin/routeFilms");
+const routeChair = require("./routes/admin/routeChair");
+const routeQRCode = require('./routes/admin/routeQRCode');
+const routeHallChairs = require("./routes/admin/routeHallChairs");
+const routeHallChairsSessions = require("./routes/admin/routeHallChairsSessions");
+const routeSessions = require('./routes/admin/routeSessions');
+
+const routeAuth = require("./routes/auth/routeAuth");
+const routeRoles = require("./routes/auth/routeRoles");
+const routeUsers = require("./routes/auth/routeUsers");
+const routeUsersRoles = require("./routes/auth/routeUserRoles");
 
 const app = express();
 const PORT = process.env.SERVER_PORT || 3001;
@@ -17,7 +22,7 @@ app.use(express.json());
 app.use(cors());
 
 //const whitelist = [
-  //'https://b1c849c5-8eba-45e0-8e6a-dfcf73f6745d-00-tblmp5ul2xcl.riker.replit.dev', 
+  //'https://b1c849c5-8eba-45e0-8e6a-dfcf73f6745d-00-tblmp5ul2xcl.riker.replit.dev',
   //'https://f8d59f01-e4ef-4ba3-9500-b0fe931750ab-00-ylebfj2olvum.worf.replit.dev',
 //  'http://localhost:5000/'
 //];
@@ -41,6 +46,11 @@ app.get("/", (req, res) => {
 });
 
 //app.use(`/${process.env.DB_SECRET}/api/v1/users`, cors(corsOptions), userRoutes);
+
+app.use("/api/auth", routeAuth);
+app.use("/api/roles", routeRoles);
+app.use("/api/users", routeUsers);
+app.use("/api/usersroles", routeUsersRoles);
 
 app.use(`/${process.env.DB_SECRET}/api/v1/users`, userRoutes);
 app.use("/api/chair", routeChair);

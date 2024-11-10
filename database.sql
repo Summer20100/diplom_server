@@ -1,3 +1,5 @@
+-- FOR ADMIN
+
 CREATE TABLE IF NOT EXISTS halls (
     id SERIAL PRIMARY KEY, 
     hall_title VARCHAR(255) UNIQUE NOT NULL
@@ -54,4 +56,21 @@ CREATE TABLE IF NOT EXISTS hall_chairs_of_session (
     session_id INT NOT NULL,
     FOREIGN KEY (session_id) REFERENCES sessions (id),
     check_is_buying BOOLEAN DEFAULT false
+);
+
+-- FOR AUTH
+
+CREATE TABLE IF NOT EXISTS "role" (
+    "value" VARCHAR(255) UNIQUE NOT NULL DEFAULT 'USER'
+);
+
+CREATE TABLE IF NOT EXISTS "user" (
+    username VARCHAR(255) UNIQUE NOT NULL,
+    "password" VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS user_role (
+    username VARCHAR(255) REFERENCES "user"(username) ON DELETE CASCADE,
+    "roles" VARCHAR(255) REFERENCES "role"("value") ON DELETE CASCADE,
+    PRIMARY KEY (username, "roles")
 );

@@ -1,6 +1,6 @@
-const pool = require("../db");
-const { queriesChair } = require("../queries/queriesChair");
-const { queriesHallChairs } = require("../queries/queriesHallChairs");
+const pool = require("../../db");
+const { queriesChair } = require("../../queries/admin/queriesChair");
+const { queriesHallChairs } = require("../../queries/admin/queriesHallChairs");
 
 const getHallChairs = async (req, res) => {
   try {

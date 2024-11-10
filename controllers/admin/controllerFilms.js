@@ -1,6 +1,6 @@
 const { json } = require("express");
-const pool = require("../db");
-const { queriesFilms } = require("../queries/queriesFilms");
+const pool = require("../../db");
+const { queriesFilms } = require("../../queries/admin/queriesFilms");
 
 const createFilm = async (req, res) => {
   const { title, origin, release_date, poster_title, synopsis, image_url, duration, for_registration } = req.body;

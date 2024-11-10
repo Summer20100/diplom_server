@@ -1,6 +1,6 @@
-const pool = require("../db");
-const { queriesSessions } = require("../queries/queriesSessions");
-const { queriesFilms } = require("../queries/queriesFilms");
+const pool = require("../../db");
+const { queriesSessions } = require("../../queries/admin/queriesSessions");
+const { queriesFilms } = require("../../queries/admin/queriesFilms");
 
 const getSessions = async (req, res) => {
   try {

@@ -1,5 +1,5 @@
-const pool = require("../db");
-const { queriesHallChairsSessions } = require("../queries/queriesHallChairsSessions");
+const pool = require("../../db");
+const { queriesHallChairsSessions } = require("../../queries/admin/queriesHallChairsSessions");
 
 const getHallChairsOfSession = async (req, res) => {
   try {

@@ -1,5 +1,5 @@
-const pool = require("../db");
-const { queriesHall } = require("../queries/queriesHall");
+const pool = require("../../db");
+const { queriesHall } = require("../../queries/admin/queriesHall");
 
 const addHall = async (req, res) => {
   const { hall_title } = req.body;
