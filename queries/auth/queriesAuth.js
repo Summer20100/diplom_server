@@ -26,6 +26,15 @@ const queriesAuth = {
     LEFT JOIN user_role ur ON u.username = ur.username
     GROUP BY u.username, u.password;
   `,
+
+  getUserRolesByUsername: `
+    SELECT u.username, u.password, ARRAY_AGG(ur.roles) AS roles
+    FROM "user" u 
+    LEFT JOIN user_role ur ON u.username = ur.username
+    WHERE u.username = $1
+    GROUP BY u.username, u.password;
+  `,
+
 }; 
     
 module.exports = {

@@ -11,7 +11,8 @@ router.post("/registration", [
     check("password", "Пароль обязателен").notEmpty(),
     check("password", "Пароль больше 4 и меньше 10 символов").isLength({min: 4, max:10})
 ], controllerAuth.registration);
-router.post("/login", controllerAuth.login);
-router.get("/users", middlewareRole(["USER", "ADMIN"]), controllerAuth.getUsers);
 
+router.post("/login", controllerAuth.login);
+router.get("/users", middlewareRole(["ADMIN"]), controllerAuth.getUsers);
+router.get("/users/:username", middlewareRole(["USER", "ADMIN"]), controllerAuth.getUserByUsername);
 module.exports = router;

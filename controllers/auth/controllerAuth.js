@@ -73,22 +73,27 @@ const login = async (req, res) => {
     if (ifExist.rows.length === 0) {
       return sendResponse(res, 401, { message: `User ${ username } not found` });
     };
-
-    const validPass = bcrypt.compareSync(password, ifExist.rows[0].password);
-    if (!validPass) {
-      return sendResponse(res, 400, { message: `Неверный пароль` });
-    };
-
+    
     const rolesByUser = await pool.query(queriesUserRole.getUserRolesByUsername, [username, ]);
     if (rolesByUser.rows.length === 0) {
       return sendResponse(res, 400, { message: `Нет ролей для пользователя ${username}` });
     };
-
     const { roles } = rolesByUser.rows[0];
     const token = generateAcsessToken(username, roles);
 
-    return res.json({token});
+    const validPass = bcrypt.compareSync(password, ifExist.rows[0].password);
 
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'strict',
+      maxAge: validPass ? 3600 * 1000 : 0
+    });
+    if (!validPass) {
+      return sendResponse(res, 400, { message: `Неверный пароль` });
+    };
+
+    return sendResponse(res, 200, {message: `User "${username}" logged in successfully`, token});
   } catch (err) {
     return handleError(res, err, {message: "Login error"});
   }
@@ -103,8 +108,19 @@ const getUsers = async (req, res) => {
   }
 };
 
+const getUserByUsername = async (req, res) => {
+  const { username } = req.params;
+  try {
+    const result = await pool.query(queriesAuth.getUserRolesByUsername, [username, ]);    
+    return sendResponse(res, 200, result.rows);
+  } catch (err) {
+    return handleError(res, err, "Failed to get user by name");
+  }
+};
+
 module.exports = {
   registration,
   login,
   getUsers,
+  getUserByUsername
 };
