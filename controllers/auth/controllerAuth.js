@@ -80,6 +80,7 @@ const login = async (req, res) => {
     };
     const { roles } = rolesByUser.rows[0];
     const token = generateAcsessToken(username, roles);
+    const user = {username, roles}
 
     const validPass = bcrypt.compareSync(password, ifExist.rows[0].password);
 
@@ -87,13 +88,13 @@ const login = async (req, res) => {
       httpOnly: true,
       secure: false,
       sameSite: 'strict',
+      // maxAge: validPass ? 3600 * 1000 : 0
       maxAge: validPass ? 3600 * 1000 : 0
     });
     if (!validPass) {
       return sendResponse(res, 400, { message: `Неверный пароль` });
     };
-
-    return sendResponse(res, 200, {message: `User "${username}" logged in successfully`, token});
+    return sendResponse(res, 200, {message: `User "${username}" logged in successfully`, token, user});
   } catch (err) {
     return handleError(res, err, {message: "Login error"});
   }

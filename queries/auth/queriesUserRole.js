@@ -15,13 +15,11 @@ const queriesUserRole = {
     ON CONFLICT (username, "roles") DO NOTHING; 
   `,
 
+  addRoleToUser: `INSERT INTO user_role (username, roles) VALUES ($1, $2);`,
+
   getUserRoles: `
     SELECT * FROM user_role;
   `,
-
-  // getUserRolesByUsername: `
-  //   SELECT "roles" FROM user_role WHERE username = $1;
-  // `,
 
   getUserRolesByUsername: `
     SELECT array_agg("roles") AS roles
@@ -29,6 +27,9 @@ const queriesUserRole = {
     WHERE username = $1
     GROUP BY username;
   `,
+
+  correctRoleByUser: `DELETE FROM user_role WHERE username = $1 AND roles = $2`,
+
 };
 
 module.exports = {
