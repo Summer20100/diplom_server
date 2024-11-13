@@ -13,6 +13,7 @@ router.post("/registration", [
 ], controllerAuth.registration);
 
 router.post("/login", controllerAuth.login);
-router.get("/users", middlewareRole(["ADMIN"]), controllerAuth.getUsers);
+//router.get("/users", middlewareRole(["ADMIN"]), controllerAuth.getUsers);
+router.get("/users", middlewareAuth, controllerAuth.getUsers);
 router.get("/users/:username", middlewareRole(["USER", "ADMIN"]), controllerAuth.getUserByUsername);
 module.exports = router;

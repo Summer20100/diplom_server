@@ -88,13 +88,13 @@ const login = async (req, res) => {
       httpOnly: true,
       secure: false,
       sameSite: 'strict',
-      // maxAge: validPass ? 3600 * 1000 : 0
+
       maxAge: validPass ? 3600 * 1000 : 0
     });
     if (!validPass) {
       return sendResponse(res, 400, { message: `Неверный пароль` });
     };
-    return sendResponse(res, 200, {message: `User "${username}" logged in successfully`, token, user});
+    return sendResponse(res, 200, {message: `User "${username}" logged in successfully`, token, roles});
   } catch (err) {
     return handleError(res, err, {message: "Login error"});
   }
