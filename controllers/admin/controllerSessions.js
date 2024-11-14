@@ -259,6 +259,8 @@ const updateSession = async (req, res) => {
 
     const resultSession = await pool.query(queriesSessions.getSessionById, [id]);
     const session = resultSession.rows[0];
+
+
     if (!session) {
       return res.status(404).json({ error: "Сеанс не найден" });
     }
@@ -287,8 +289,23 @@ const updateSession = async (req, res) => {
 
     const { session_start: start, session_finish: finish } = session;
 
+    console.log("session.session_date>>>", session.session_date)
+    console.log("session_date>>>", session_date)
+
     const date = new Date(session_date);
-    const formattedDate = new Intl.DateTimeFormat('ru-RU').format(date);
+
+    function convertDate(dateString) {
+      const [day, month, year] = dateString.split('.');
+      const isoDate = `${year}-${month}-${String(Number(day)).padStart(2, '0')}T00:00:00.000Z`;
+      return new Date(isoDate);
+    };
+
+    const formattedDate = convertDate(session_date);
+
+
+    console.log("session.session_date>>>", session.session_date);
+    console.log("session_date>>>", session_date);
+    console.log("formattedDate>>>", formattedDate);
 
     const sessionDuration = duration(session_start, session_finish);
 
@@ -300,7 +317,7 @@ const updateSession = async (req, res) => {
     const result = await pool.query(queriesSessions.updateSession, [
       hall_id,
       hall_title,
-      session_date,
+      formattedDate.toISOString(),
       session_start,
       session_finish,
       film_id,

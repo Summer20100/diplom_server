@@ -95,7 +95,7 @@ const updateFilm = async (req, res) => {
       }
     });
 
-    console.log({ message: 'Film updated successfully' });
+    console.log('Film updated successfully');
     return res.status(200).json({ message: `Film updated successfully`});
   } catch(err) {
     console.error(err);
