@@ -50,7 +50,7 @@ const registration = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(password, salt);
 
-    const currentRole = "USER";
+    const currentRole = "CLIENT";
     const roleUser = await pool.query(queriesRole.getRoleByValue, [currentRole]);
     if (roleUser.rows.length > 0) {
       await pool.query(queriesUser.createUser, [username, hashPassword]);
@@ -88,13 +88,12 @@ const login = async (req, res) => {
       httpOnly: true,
       secure: false,
       sameSite: 'strict',
-
-      maxAge: validPass ? 3600 * 1000 : 0
+      maxAge: validPass ? 360 * 1000 : 0
     });
     if (!validPass) {
       return sendResponse(res, 400, { message: `Неверный пароль` });
     };
-    return sendResponse(res, 200, {message: `User "${username}" logged in successfully`, token, roles});
+    return sendResponse(res, 200, {message: `User "${username}" logged in successfully`, token, roles, username});
   } catch (err) {
     return handleError(res, err, {message: "Login error"});
   }

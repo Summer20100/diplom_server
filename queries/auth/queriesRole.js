@@ -1,7 +1,7 @@
 const queriesRole = {
   createTableRole: `
     CREATE TABLE IF NOT EXISTS "role" (
-      "value" VARCHAR(255) UNIQUE NOT NULL DEFAULT 'USER'
+      "value" VARCHAR(255) UNIQUE NOT NULL DEFAULT 'CLIENT'
     );
     `,
 
