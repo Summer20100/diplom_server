@@ -7,8 +7,8 @@ const getHallChairs = async (req, res) => {
     const result = await pool.query(queriesHallChairs.getHallChairs)
     return res.status(200).json(result.rows)
   } catch (err) {
-    console.error("Error executing query", err);
-    return res.status(500).json({ error: "Internal Server Error" });
+    console.error("Внутренняя ошибка сервера", err);
+    return res.status(500).json({ error: "Внутренняя ошибка сервера" });
   }
 };
 
@@ -17,8 +17,8 @@ const getHallChairsOfSession = async (req, res) => {
     const result = await pool.query(queriesHallChairs.getHallChairsOfSession)
     return res.status(200).json(result.rows)
   } catch (err) {
-    console.error("Error executing query", err);
-    return res.status(500).json({ error: "Internal Server Error" });
+    console.error("Внутренняя ошибка сервера", err);
+    return res.status(500).json({ error: "Внутренняя ошибка сервера" });
   }
 };
 
@@ -31,8 +31,8 @@ const getHallChairsByIdOfSession = async (req, res) => {
     }
     return res.status(200).json(result)
   } catch (err) {
-    console.error("Error executing query", err);
-    return res.status(500).json({ error: "Internal Server Error" });
+    console.error("Внутренняя ошибка сервера", err);
+    return res.status(500).json({ error: "Внутренняя ошибка сервера" });
   }
 };
 
@@ -59,7 +59,7 @@ const addHallChairsOfSession = async (req, res) => {
     return res.status(200).json({ message: 'Hall seats of session added successfully'})
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ error: "Внутренняя ошибка сервера" });
   }
 };
 
@@ -80,7 +80,7 @@ const updateHallChairByIdSeatForBuying = async (req, res) => {
     }
   } catch(err) {
     console.error(err);
-    return res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ error: "Внутренняя ошибка сервера" });
   }
 };
 
@@ -93,8 +93,8 @@ const getHallChairsById = async (req, res) => {
     }
     return res.status(200).json(result)    
   } catch (err) {
-    console.error("Error executing query", err);
-    return res.status(500).json({ error: "Internal Server Error" });
+    console.error("Внутренняя ошибка сервера", err);
+    return res.status(500).json({ error: "Внутренняя ошибка сервера" });
   }
 };
 
@@ -103,16 +103,17 @@ const createTableHallChairs = async (req, res) => {
     await pool.query(queriesHallChairs.createTableHallChairs)
     return res.status(200).json({ message: "GOOODDD"})
   } catch(err) {
-    console.error("Error executing query", err);
-    return res.status(500).json({ error: "Internal Server Error" });
+    console.error("Внутренняя ошибка сервера", err);
+    return res.status(500).json({ error: "Внутренняя ошибка сервера" });
   }
 };
 
 const addHallChairs = async (req, res) => {
   const hallSeats = req.body;
+  const { hall_title, id_seat } = hallSeats[hallSeats.length -1];
   try {
     if (!hallSeats || hallSeats.length === 0) {
-      return res.status(400).json({ error: "No hall seats provided" });
+      return res.status(400).json({ error: "Нет кресел в зале" });
     }
     for (const seat of hallSeats) {
       const { id_seat, hall_id, hall_title, row_number, seat_number, chair_type, price } = seat;
@@ -125,12 +126,13 @@ const addHallChairs = async (req, res) => {
         chair_type,
         price
       ]);
-    }
-    console.log({ message: 'Hall seats added successfully'})
-    return res.status(200).json({ message: 'Hall seats added successfully'})
+    };
+
+    console.log({ message: `Зал "${ hall_title }" в количестве ${ id_seat }мест сформирован успешно`})
+    return res.status(200).json({ message: `Зал "${ hall_title }" в количестве ${ id_seat } мест сформирован успешно`})
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ error: "Ошибка на сервере" });
   }
 };
 
@@ -146,17 +148,35 @@ const updatePriceHallChairs = async (req, res) => {
 
     if (id_seat && chair_type) {
       await pool.query(queriesHallChairs.updateHallChairByIdSeat, [id, id_seat, chair_type,]);
-      console.log({ message: 'Type of chair updated successfully'});
-      return res.status(200).json({ message: `Type of chair updated successfully`});
-    }
+      console.log({ message: `Тип места №${ id_seat } обновлён успешно`});
+      return res.status(200).json({ message: `Тип места №${ id_seat } обновлён успешно`});
+    };
+
+    const hallSeats = await pool.query(
+      queriesHallChairs.getHallChairsById, 
+      [id, ]
+    );
+
+    if (hallSeats.rowCount === 0) {
+      console.error(`Заполните данные конфигурации зала: количество рядов и мест в ряде`)
+      return res.status(500).json({ error: `Заполните данные конфигурации зала: количество рядов и мест в ряде` });
+    };
+
+    if (hallSeats.rows.filter(el => el.chair_type === "disabled").length ===  hallSeats.rows.length ) {
+      console.error(`Заполните данные типа кресел на схеме зала`)
+      return res.status(500).json({ error: `Заполните данные типа кресел на схеме зала` });
+    };
+
     if (price && type) {
       await pool.query(queriesHallChairs.updatePriceHallChairs, [price, type, id]);
-      console.log({ message: 'Price updated successfully' });
-      return res.status(200).json({ message: `Price updated successfully` });
-   }
+      return res.status(200).json({ message: `Стоимость места обновлена успешно` });
+    } else {
+      console.error(`Стоимость места не обновлена`)
+      return res.status(500).json({ error: `Стоимость места типа не обновлена` });
+    };
   } catch(err) {
     console.error(err);
-    return res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ error: "Внутренняя ошибка сервера" });
   }
 };
 
@@ -168,7 +188,7 @@ const deleteHallChairs = async (req, res) => {
     return res.status(200).json({ message: `Hall seats deleted successfully`})
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ error: "Внутренняя ошибка сервера" });
   }
 };
 

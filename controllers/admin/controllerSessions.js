@@ -126,8 +126,8 @@ const getSessionsByDate = async (req, res) => {
     }
     return res.status(200).json(transformData);
   } catch (err) {
-    console.error("Error executing query", err);
-    return res.status(500).json({ error: "Internal Server Error" });
+    console.error("Внутренняя ошибка сервера", err);
+    return res.status(500).json({ error: "Внутренняя ошибка сервера" });
   }
 };
 
@@ -195,6 +195,13 @@ const getSessionByHallId = async (req, res) => {
 const createSession = async (req, res) => {
   try {
     const { hall_id, hall_title, session_date, session_start, session_finish, film_id } = req.body;
+    console.log(hall_id, hall_title, session_date, session_start, session_finish, film_id)
+
+    if (!hall_id && !hall_title && !session_date && !session_start && !session_finish) {
+      console.log("o;ij,beorb,")
+    }
+
+    console.log(hall_id, hall_title, session_date, session_start, session_finish, film_id)
 
     const resultSessions = await pool.query(queriesSessions.getSessions);
     const sessions = resultSessions.rows;
@@ -204,9 +211,9 @@ const createSession = async (req, res) => {
     };
 
     if (session_start >= session_finish) {
-      console.log(`Session start ${session_start} is not before finish ${session_finish}`);
+      console.log(`Начало сеанса в ${session_start} не может быть до онончания в ${session_finish}`);
       return res.status(401).json({
-        error: `Session start ${session_start} must be before finish ${session_finish}`,
+        error: `Начало сеанса в ${session_start} должно быть после онончания в ${session_finish}`,
       });
     }
 
@@ -224,9 +231,9 @@ const createSession = async (req, res) => {
         (session_start <= session.session_start && session_finish >= session.session_finish); // Новый полностью охватывает существующий
 
       if (isOverlapping) {
-        console.log(`Session time ${session_start} to ${session_finish} overlaps with existing session ${session.session_start} to ${session.session_finish}`);
+        console.log(`Начало сеанса с ${session_start} до ${session_finish} перекрывается с существующим сеансом с ${session.session_start} до ${session.session_finish}`);
         return res.status(401).json({
-          error: `Session time ${session_start} to ${session_finish} overlaps with existing session ${session.session_start} to ${session.session_finish}`,
+          error: `Начало сеанса с ${session_start} по ${session_finish} перекрывается с существующим сеансом с ${session.session_start} до ${session.session_finish}`,
         });
       }
     };
@@ -244,11 +251,11 @@ const createSession = async (req, res) => {
     );
 
     const sessionId = result.rows[0].id;
-    console.log(`Session was created with ID: ${sessionId}`);
-    return res.status(200).json({ message: `Session was created`, session_id: sessionId });
+    console.log(`Сеанс создан успешно с ID: ${sessionId}`);
+    return res.status(200).json({ message: `Сеанс создан успешно`, session_id: sessionId });
   } catch (err) {
-    console.error("Error creating session:", err);
-    return res.status(500).json({ error: "Internal Server Error" });
+    console.error("Внутренняя ошибка сервера:", err);
+    return res.status(500).json({ error: "Внутренняя ошибка сервера" });
   }
 };
 
@@ -289,8 +296,8 @@ const updateSession = async (req, res) => {
 
     const { session_start: start, session_finish: finish } = session;
 
-    console.log("session.session_date>>>", session.session_date)
-    console.log("session_date>>>", session_date)
+    // console.log("session.session_date>>>", session.session_date)
+    // console.log("session_date>>>", session_date)
 
     const date = new Date(session_date);
 
@@ -303,9 +310,9 @@ const updateSession = async (req, res) => {
     const formattedDate = convertDate(session_date);
 
 
-    console.log("session.session_date>>>", session.session_date);
-    console.log("session_date>>>", session_date);
-    console.log("formattedDate>>>", formattedDate);
+    // console.log("session.session_date>>>", session.session_date);
+    // console.log("session_date>>>", session_date);
+    // console.log("formattedDate>>>", formattedDate);
 
     const sessionDuration = duration(session_start, session_finish);
 
@@ -340,7 +347,6 @@ const updateSession = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
 
 const deleteSession = async (req, res) => {
   const { id } = req.params;
