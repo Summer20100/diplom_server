@@ -85,12 +85,18 @@ const updateHallChairByIdSeatForBuying = async (req, res) => {
 };
 
 const getHallChairsById = async (req, res) => {
+  const { id } = req.params;
   try {
-    const { id } = req.params;
+    if (!id || isNaN(Number(id)) || id > Number.MAX_SAFE_INTEGER) {
+      return res.status(400).json({ error: "Название зала или его номер введено некорректно" });
+    };
     const result = (await pool.query(queriesHallChairs.getHallChairsById, [id, ])).rows;
     if (result.length === 0) {
-      return res.status(404).json({ error: "Hall does not exist"})
-    }
+      return res.status(404).json({ error: "Зала не существует"})
+    };
+    if (!result) {
+      return res.status(500).json({ error: "Зал введён некорректно" });
+    };
     return res.status(200).json(result)    
   } catch (err) {
     console.error("Внутренняя ошибка сервера", err);

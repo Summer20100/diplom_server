@@ -9,13 +9,13 @@ const { Pool } = require('pg');
 //     port: process.env.DB_PORT,
 // });
 
-/*const pool = new Pool({
-user: 'bulati4mai',
-host: 'pg3.sweb.ru',
-database: 'bulati4mai',
-password: '&DSN4SHXM1EM6N9c',
-port: 5432,
-});*/
+// const pool = new Pool({
+// user: 'bulati4mai',
+// host: 'pg3.sweb.ru',
+// database: 'bulati4mai',
+// password: '&DSN4SHXM1EM6N9c',
+// port: 5432,
+// });
 
 const pool = new Pool({
   user: 'postgres',

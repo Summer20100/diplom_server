@@ -1,6 +1,7 @@
 const pool = require("../../db");
 const { queriesSessions } = require("../../queries/admin/queriesSessions");
 const { queriesFilms } = require("../../queries/admin/queriesFilms");
+const { validationResult } = require("express-validator");
 
 const getSessions = async (req, res) => {
   try {
@@ -193,15 +194,15 @@ const getSessionByHallId = async (req, res) => {
 };
 
 const createSession = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({message: "Ошибка при регистрации", error: errors.array()});
+  };
+  console.log(errors);
   try {
     const { hall_id, hall_title, session_date, session_start, session_finish, film_id } = req.body;
-    console.log(hall_id, hall_title, session_date, session_start, session_finish, film_id)
 
-    if (!hall_id && !hall_title && !session_date && !session_start && !session_finish) {
-      console.log("o;ij,beorb,")
-    }
-
-    console.log(hall_id, hall_title, session_date, session_start, session_finish, film_id)
+    console.log({hall_id, hall_title, session_date, session_start, session_finish, film_id})
 
     const resultSessions = await pool.query(queriesSessions.getSessions);
     const sessions = resultSessions.rows;
@@ -222,6 +223,21 @@ const createSession = async (req, res) => {
 
     const sessionsByHall = (await pool.query(queriesSessions.getSessionByHallId, [hall_id])).rows;
     const filterSessionsByDate = sessionsByHall.filter(session => formatDate(session.session_date) === formatDate(neWdate));
+
+    if (!session_date) {
+      console.log(`Дата сеанса не введена`);
+        return res.status(500).json({ error: `Дата сеанса не введена` });
+    };
+
+    if (!session_start) {
+      console.log(`Время начала сеанса не введено`);
+        return res.status(500).json({ error: `Время начала сеанса не введено` });
+    };
+
+    if (!session_finish) {
+      console.log(`Длительность сеанса не введена`);
+        return res.status(500).json({ error: `Длительность сеанса не введена` });
+    };
 
     for (const session of filterSessionsByDate) {
       const isOverlapping =
@@ -355,19 +371,19 @@ const deleteSession = async (req, res) => {
     const result = await pool.query(queriesSessions.deleteSession, [id]);
 
     if (result.rowCount > 0) {
-      console.log(`Session deleted successfully.`);
+      console.log(`Сеанс успешно удалён`);
       return res
         .status(200)
-        .json({ message: `Session deleted successfully` });
+        .json({ message: `Сеанс успешно удалён` });
     } else {
-      console.log(`Session does not exist`);
+      console.log(`Такого сеанса не существует`);
       return res
         .status(404)
-        .json({ error: `Session with ID ${id} does not exist` });
+        .json({ error: `Сеанса с ID ${id} не существует` });
     }
   } catch (err) {
-    console.error("Error deleting session:", err);
-    return res.status(500).json({ error: "Internal Server Error" });
+    console.error("Внутренняя ошибка сервера:", err);
+    return res.status(500).json({ error: "Внутренняя ошибка сервера" });
   }
 };
 
