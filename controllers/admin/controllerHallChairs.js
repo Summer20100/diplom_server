@@ -92,7 +92,7 @@ const getHallChairsById = async (req, res) => {
     };
     const result = (await pool.query(queriesHallChairs.getHallChairsById, [id, ])).rows;
     if (result.length === 0) {
-      return res.status(404).json({ error: "Зала не существует"})
+      return res.status(404).json({ error: "Зал не существует"})
     };
     if (!result) {
       return res.status(500).json({ error: "Зал введён некорректно" });

@@ -9,10 +9,9 @@ router.get("/", controllerSessions.getSessions);
 router.get("/halls", controllerSessions.getSessionsHalls);
 router.get("/date", controllerSessions.getSessionsByDate);
 router.post("/", [
-    check("hall_id", "Необходимо выбрать зал").notEmpty(),
     check("session_date", "Необходимо выбрать дату сеанса").notEmpty(),
     check("session_start", "Необходимо указать начало сеанса в формате ЧЧ:ММ").notEmpty(),
-    check("session_finish", "Необходимо указать длительность сеанса (минимальная 1 мин., максимальная 149 минут)").notEmpty()
+    check("session_finish", "Необходимо указать длительность сеанса (минимальная 1 мин., максимальная 149 минут)").notEmpty(),
 ], controllerSessions.createSession);
 router.get("/:id", controllerSessions.getSessionById);
 router.get("/hall/:id", controllerSessions.getSessionByHallId);

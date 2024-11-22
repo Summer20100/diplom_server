@@ -35,7 +35,7 @@ const getHalls = async (req, res) => {
     }
     return res.status(200).json(result.rows);
   } catch (err) {
-    console.error("Error executing query", err);
+    console.error("Внутренняя ошибка сервера", err);
     return res.status(500).json({ error: "Внутренняя ошибка сервера" });
   }
 };

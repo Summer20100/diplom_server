@@ -1,6 +1,7 @@
 const pool = require("../../db");
 const { queriesSessions } = require("../../queries/admin/queriesSessions");
 const { queriesFilms } = require("../../queries/admin/queriesFilms");
+const { queriesHallChairs } = require("../../queries/admin/queriesHallChairs");
 const { validationResult } = require("express-validator");
 
 const getSessions = async (req, res) => {
@@ -194,15 +195,82 @@ const getSessionByHallId = async (req, res) => {
 };
 
 const createSession = async (req, res) => {
+  const { hall_id, hall_title, session_date, session_start, session_finish, film_id } = req.body;
   const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({message: "Ошибка при регистрации", error: errors.array()});
-  };
-  console.log(errors);
+  const errorArray = errors.array();
+ 
   try {
-    const { hall_id, hall_title, session_date, session_start, session_finish, film_id } = req.body;
+    console.log({hall_id, hall_title, session_date, session_start, session_finish, film_id});
 
-    console.log({hall_id, hall_title, session_date, session_start, session_finish, film_id})
+    function duration(start, finish) {
+      const [startHour, startMinute] = start.split(":").map(Number);
+      const [finishHour, finishMinute] = finish.split(":").map(Number);
+      
+      const startMinutes = startHour * 60 + startMinute;
+      const finishMinutes = finishHour * 60 + finishMinute;
+    
+      return finishMinutes >= startMinutes 
+        ? finishMinutes - startMinutes 
+        : (1440 - startMinutes + finishMinutes);
+    };
+
+    const resultHallChairsById = (await pool.query(queriesHallChairs.getHallChairsById, [hall_id, ])).rows;
+
+    console.log(duration(session_start, session_finish))
+    console.log(session_finish)
+
+    if (hall_id === 999999999 || hall_id === null) {
+      errorArray.unshift({
+        type: "field",
+        value: hall_id,
+        msg: "Необходимо выбрать зал",
+        path: "hall_id",
+        location: "body",
+      });
+    } else if (resultHallChairsById.length === 0) {
+      errorArray.unshift({
+        type: "field",
+        value: "",
+        msg: "Необходимо назначить количество рядов и кресел выбранного зала",
+        path: "hall_id",
+        location: "body",
+      });
+    };
+
+    if (duration(session_start, session_finish) < 1) {
+      errorArray.unshift({
+        type: "field",
+        value: "",
+        msg: "Необходимо назначить длительность больше 1 минуты",
+        path: "session_finish",
+        location: "body",
+      });
+    } else if (duration(session_start, session_finish) > 149) {
+
+      errorArray.unshift({
+        type: "field",
+        value: "",
+        msg: "Необходимо назначить длительность меньше 150 минут",
+        path: "session_finish",
+        location: "body",
+      });
+    };
+
+    if (errorArray.length > 0) {
+      return res.status(400).json({ message: "Ошибка при регистрации", error: errorArray });
+    };
+
+/*     if (duration(session_start, session_finish) < 1) {
+      return res.status(401).json({
+        error: `Необходимо назначить длительность больше 1 минуты`,
+      });
+    }; 
+    if (duration(session_start, session_finish) > 149) {
+      return res.status(401).json({
+        error: `Необходимо назначить длительность меньше 150 минут`,
+      });
+    }; */
+
 
     const resultSessions = await pool.query(queriesSessions.getSessions);
     const sessions = resultSessions.rows;
@@ -306,14 +374,8 @@ const updateSession = async (req, res) => {
 
     const filmDuration = film ? film.duration : 0;
     const title = film ? film.title : "";
-/*     if (!film) {
-      return res.status(404).json({ message: "Фильм не найден" });
-    } */
 
     const { session_start: start, session_finish: finish } = session;
-
-    // console.log("session.session_date>>>", session.session_date)
-    // console.log("session_date>>>", session_date)
 
     const date = new Date(session_date);
 
@@ -324,11 +386,6 @@ const updateSession = async (req, res) => {
     };
 
     const formattedDate = convertDate(session_date);
-
-
-    // console.log("session.session_date>>>", session.session_date);
-    // console.log("session_date>>>", session_date);
-    // console.log("formattedDate>>>", formattedDate);
 
     const sessionDuration = duration(session_start, session_finish);
 
